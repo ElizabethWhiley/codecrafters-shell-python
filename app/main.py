@@ -6,7 +6,9 @@ def main():
     sys.stdout.write("$ ")
     # read the input from the user
     input = sys.stdin.readline()
-    # print the input
+
+    # and remove the newline character
+    input = input.strip()
     sys.stdout.write(input + ": command not found")
     pass
 
