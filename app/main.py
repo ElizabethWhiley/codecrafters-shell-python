@@ -7,6 +7,8 @@ def main():
     while not valid:
         sys.stdout.write("$ ")
         input = sys.stdin.readline().strip()
+        if input == "exit":
+            sys.exit(0)
         sys.stdout.write(input + ": command not found\n")
     pass
 
