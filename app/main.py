@@ -42,12 +42,9 @@ def parse_output_redirect(arguments: list[str]) -> tuple[list[str], str | None]:
     for i, arg in enumerate(arguments):
         if arg == ">":
             if i + 1 >= len(arguments):
-                print(">: missing operand", flush=True)
                 return arguments, None
-            if arguments[i + 1].startswith(">"):
-                print(">: cannot redirect output to a file that starts with >", flush=True)
-                return arguments, None
-            return arguments[:i], arguments[i + 1]
+            output_file = arguments[i + 1]
+            return arguments[:i], output_file
     return arguments, None
 
 
