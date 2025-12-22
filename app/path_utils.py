@@ -1,6 +1,5 @@
 import os
 
-
 def get_executable_path(command: str) -> str | None:
     paths = os.environ.get("PATH")
     if not paths:

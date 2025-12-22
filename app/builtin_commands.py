@@ -1,6 +1,6 @@
 import os
 import sys
-from path_utils import get_executable_path
+from .path_utils import get_executable_path
 
 def handle_cd(arguments: list[str]) -> None:
     if len(arguments) == 0:

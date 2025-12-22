@@ -1,7 +1,7 @@
 import os
 import sys
-from builtin_commands import builtin_handlers, is_builtin
-from path_utils import get_executable_path
+from .builtin_commands import builtin_handlers, is_builtin
+from .path_utils import get_executable_path
 
 
 def main() -> None:
