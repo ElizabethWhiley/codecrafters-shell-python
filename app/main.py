@@ -23,14 +23,17 @@ def get_executable_path(command):
     paths = os.environ.get("PATH").split(":")
     for path in paths:
         if os.path.exists(os.path.join(path, command)):
-            return os.path.join(path, command)
+            if os.access(os.path.join(path, command), os.X_OK):
+                return os.path.join(path, command)
+            else:
+                continue
+        else:
+            continue
     return None
 
 def is_executable(command):
     path = get_executable_path(command)
-    if path:
-        return os.access(path, os.X_OK)
-    return False
+    return path is not None
 
 def execute_builtin(command, arguments):
     if command == "type":
