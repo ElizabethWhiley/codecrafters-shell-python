@@ -12,24 +12,24 @@ def main():
         if is_builtin(command):
             execute_builtin(command, arguments)
         elif is_executable(command):
-            execute_executable(command, arguments)
+            execute_executable(get_executable_path(command), arguments)
         else:
             sys.stdout.write(command + ": command not found\n")
 
 def is_builtin(command):
     return command in builtins
 
-def is_executable(command):
+def get_executable_path(command):
     paths = os.environ.get("PATH").split(":")
     for path in paths:
-        full_path = os.path.join(path, command)
-        if os.path.exists(full_path):
-            if os.access(full_path, os.X_OK):
-                return True
-            else:
-                continue
-        else:
-            continue
+        if os.path.exists(os.path.join(path, command)):
+            return os.path.join(path, command)
+    return None
+
+def is_executable(command):
+    path = get_executable_path(command)
+    if path:
+        return os.access(path, os.X_OK)
     return False
 
 def execute_builtin(command, arguments):
@@ -50,7 +50,7 @@ def type_command(arguments):
         if is_builtin(arg):
             sys.stdout.write(arg + " is a shell builtin\n")
         elif is_executable(arg):
-            sys.stdout.write(arg + " is in " + os.path.abspath(arg) + "\n")
+            sys.stdout.write(arg + " is " + get_executable_path(arg) + "\n")
         else:
             sys.stdout.write(arg + ": not found\n")
 
