@@ -6,9 +6,8 @@ builtins = ["pwd", "echo", "exit", "type"]
 def main() -> None:
     while True:
         print(f"$ ", end="", flush=True)
-        line = sys.stdin.readline().strip()
-        split_line = line.split()
-        command, *arguments = (split_line or (None, []))
+        line = sys.stdin.readline().strip().split()
+        command, *arguments = line or (None, [])
 
         if not command:
             continue
@@ -36,6 +35,10 @@ def get_executable_path(command: str) -> str | None:
     return None
 
 def execute_builtin(command: str, arguments: list[str]) -> None:
+    if command == "ls":
+        print(os.listdir(os.getcwd()), flush=True)
+        return
+
     if command == "pwd":
         print(os.getcwd(), flush=True)
         return
