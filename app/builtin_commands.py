@@ -1,15 +1,6 @@
 import os
 import sys
-
-builtin_handlers = {
-    "cd": handle_cd,
-    "echo": handle_echo,
-    "exit": handle_exit,
-    "ls": handle_ls,
-    "pwd": handle_pwd,
-    "type": handle_type,
-}
-
+from path_utils import get_executable_path
 
 def handle_cd(arguments: list[str]) -> None:
     if len(arguments) == 0:
@@ -49,3 +40,12 @@ def handle_type(arguments: list[str]) -> None:
 
 def is_builtin(command: str) -> bool:
     return command in builtin_handlers
+
+builtin_handlers = {
+    "cd": handle_cd,
+    "echo": handle_echo,
+    "exit": handle_exit,
+    "ls": handle_ls,
+    "pwd": handle_pwd,
+    "type": handle_type,
+}

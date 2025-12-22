@@ -1,6 +1,6 @@
 import os
 import sys
-from builtins import builtin_handlers, is_builtin
+from builtin_commands import builtin_handlers, is_builtin
 from path_utils import get_executable_path
 
 
