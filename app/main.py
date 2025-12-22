@@ -46,7 +46,7 @@ def execute_builtin(command, arguments):
         sys.exit(0)
 
 def execute_executable(command, arguments):
-    pass
+    os.execv(command, arguments)
 
 def type_command(arguments):
     for arg in arguments:
