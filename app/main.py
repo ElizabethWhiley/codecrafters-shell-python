@@ -35,6 +35,13 @@ def get_executable_path(command: str) -> str | None:
     return None
 
 def execute_builtin(command: str, arguments: list[str]) -> None:
+    if command == "cd":
+        if arguments[0].startswith("/") and os.path.exists(arguments[0]):
+            os.chdir(arguments[0])
+        else:
+            print(f"cd: {arguments[0]}: No such file or directory", flush=True)
+        return
+
     if command == "ls":
         print(os.listdir(os.getcwd()), flush=True)
         return
