@@ -7,11 +7,17 @@ def handle_cd(arguments: list[str]) -> None:
         print("cd: missing argument", flush=True)
         return
 
-    if arguments[0].startswith("/"):
-        if os.path.exists(arguments[0]):
-            os.chdir(arguments[0])
-        else:
-            print(f"cd: {arguments[0]}: No such file or directory", flush=True)
+    absolute_path = os.path.abspath(arguments[0])
+    if not os.path.isdir(absolute_path):
+        print(f"cd: {arguments[0]}: Not a directory", flush=True)
+        return
+
+    if not os.path.exists(absolute_path):
+        print(f"cd: {arguments[0]}: No such file or directory", flush=True)
+        return
+
+    os.chdir(absolute_path)
+
 
 def handle_echo(arguments: list[str]) -> None:
     print(" ".join(arguments), flush=True)
