@@ -1,5 +1,6 @@
 import os
 import sys
+import shlex
 from .builtin_commands import builtin_handlers, is_builtin
 from .path_utils import get_executable_path
 
@@ -8,7 +9,10 @@ def main() -> None:
     while True:
         print(f"$ ", end="", flush=True)
         line = sys.stdin.readline().strip()
-        command, *arguments = parse_arguments(line)
+        # shlex.split will return a list of tokens, or [None] if the line is empty
+        tokens = shlex.split(line) or [None]
+        # tokens is a list of strings, or [None] if the line is empty
+        command, *arguments = tokens # unpack the list into command and arguments
 
         if not command:
             continue
@@ -31,9 +35,3 @@ if __name__ == "__main__":
     main()
 
 
-def parse_arguments(line: str) -> list[str]:
-    if line.startswith("'"):
-        return [line[1:-1]]
-    if line.startswith('"'):
-        return [line[1:-1]]
-    return line.split()
