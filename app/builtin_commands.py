@@ -7,6 +7,11 @@ def handle_cd(arguments: list[str]) -> None:
         print("cd: missing argument", flush=True)
         return
 
+    if arguments[0] == "~":
+        arguments[0] = os.path.expanduser("~")
+    elif arguments[0].startswith("~"):
+        arguments[0] = os.path.expanduser(arguments[0])
+
     absolute_path = os.path.abspath(arguments[0])
     if not os.path.exists(absolute_path) or not os.path.isdir(absolute_path):
         print(f"cd: {arguments[0]}: No such file or directory", flush=True)
