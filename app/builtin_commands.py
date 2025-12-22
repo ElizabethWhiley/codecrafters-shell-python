@@ -21,29 +21,28 @@ def handle_cd(arguments: list[str]) -> None:
 
 
 def handle_echo(arguments: list[str]) -> None:
-    print(" ".join(arguments), flush=True)
+    return " ".join(arguments)
 
 def handle_exit(arguments: list[str]) -> None:
     sys.exit(0)
 
 def handle_ls(arguments: list[str]) -> None:
-    print(os.listdir(os.getcwd()), flush=True)
+    return " ".join(os.listdir(os.getcwd()))
 
 def handle_pwd(arguments: list[str]) -> None:
-    print(os.getcwd(), flush=True)
+    return os.getcwd()
 
 def handle_type(arguments: list[str]) -> None:
     for arg in arguments:
         if is_builtin(arg):
-            print(f"{arg} is a shell builtin", flush=True)
-            continue
+            return f"{arg} is a shell builtin"
 
         path = get_executable_path(arg)
         if path:
-                print(f"{arg} is {path}", flush=True)
+            return f"{arg} is {path}"
 
         else:
-            print(f"{arg}: not found", flush=True)
+            return f"{arg}: not found"
 
 def is_builtin(command: str) -> bool:
     return command in builtin_handlers
