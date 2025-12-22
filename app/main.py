@@ -36,9 +36,6 @@ def main() -> None:
         else:
             print(f"{command}: not found", flush=True)
 
-if __name__ == "__main__":
-    main()
-
 
 # Parse an argument like this > and make it divert the output to a file
 def parse_output_redirect(arguments: list[str]) -> tuple[list[str], str | None]:
@@ -52,3 +49,9 @@ def parse_output_redirect(arguments: list[str]) -> tuple[list[str], str | None]:
                 return arguments, None
             return arguments[:i], arguments[i + 1]
     return arguments, None
+
+
+if __name__ == "__main__":
+    main()
+
+
