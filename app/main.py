@@ -5,8 +5,7 @@ builtins = ["pwd","echo", "exit", "type"]
 
 def main() -> None:
     while True:
-        sys.stdout.write("$ ")
-        sys.stdout.flush()
+        print("$ ", end="", flush=True)
         input = sys.stdin.readline().strip()
         command = input.split()[0]
         arguments = input.split()[1:]
@@ -19,7 +18,7 @@ def main() -> None:
             execute_executable(command, path, arguments)
             continue
         else:
-            sys.stdout.write(command + ": command not found\n")
+            print(command + ": command not found", flush=True)
 
 def is_builtin(command) -> bool:
     return command in builtins
@@ -38,16 +37,14 @@ def get_executable_path(command) -> str | None:
 
 def execute_builtin(command, arguments) -> None:
     if command == "pwd":
-        sys.stdout.write(os.getcwd() + "\n")
-        sys.stdout.flush()
+        print(os.getcwd(), flush=True)
         return
 
     if command == "type":
         type_command(arguments)
 
     if command == "echo":
-        sys.stdout.write(" ".join(arguments) + "\n")
-        sys.stdout.flush()
+        print(" ".join(arguments), flush=True)
 
     if command == "exit":
         sys.exit(0)
@@ -62,15 +59,15 @@ def execute_executable(command, path, arguments) -> None:
 def type_command(arguments) -> None:
     for arg in arguments:
         if is_builtin(arg):
-            sys.stdout.write(arg + " is a shell builtin\n")
+            print(arg + " is a shell builtin", flush=True)
             continue
 
         path = get_executable_path(arg)
         if path:
-            sys.stdout.write(arg + " is " + path + "\n")
+            print(arg + " is " + path, flush=True)
 
         else:
-            sys.stdout.write(arg + ": not found\n")
+            print(arg + ": not found", flush=True)
 
 if __name__ == "__main__":
     main()
