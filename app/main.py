@@ -1,11 +1,12 @@
 import os
 import sys
 
-builtins = ["echo", "exit", "type"]
+builtins = ["pwd","echo", "exit", "type"]
 
 def main() -> None:
     while True:
         sys.stdout.write("$ ")
+        sys.stdout.flush()
         input = sys.stdin.readline().strip()
         command = input.split()[0]
         arguments = input.split()[1:]
@@ -36,11 +37,17 @@ def get_executable_path(command) -> str | None:
     return None
 
 def execute_builtin(command, arguments) -> None:
+    if command == "pwd":
+        sys.stdout.write(os.getcwd() + "\n")
+        sys.stdout.flush()
+        return
+
     if command == "type":
         type_command(arguments)
 
     if command == "echo":
         sys.stdout.write(" ".join(arguments) + "\n")
+        sys.stdout.flush()
 
     if command == "exit":
         sys.exit(0)
@@ -61,6 +68,7 @@ def type_command(arguments) -> None:
         path = get_executable_path(arg)
         if path:
             sys.stdout.write(arg + " is " + path + "\n")
+
         else:
             sys.stdout.write(arg + ": not found\n")
 
