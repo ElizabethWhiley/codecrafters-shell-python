@@ -1,14 +1,18 @@
 import os
 import sys
 
-builtins = ["pwd","echo", "exit", "type"]
+builtins = ["pwd", "echo", "exit", "type"]
 
 def main() -> None:
     while True:
-        print("$ ", end="", flush=True)
-        input = sys.stdin.readline().strip()
-        command = input.split()[0]
-        arguments = input.split()[1:]
+        print(f"$ ", end="", flush=True)
+        line = sys.stdin.readline().strip()
+        split_line = line.split()
+        command, *arguments = (split_line or (None, []))
+
+        if not command:
+            continue
+
         if is_builtin(command):
             execute_builtin(command, arguments)
             continue
@@ -17,25 +21,21 @@ def main() -> None:
         if path:
             execute_executable(command, path, arguments)
             continue
-        else:
-            print(command + ": command not found", flush=True)
 
-def is_builtin(command) -> bool:
+        print(f"{command}: command not found", flush=True)
+
+def is_builtin(command: str) -> bool:
     return command in builtins
 
-def get_executable_path(command) -> str | None:
+def get_executable_path(command: str) -> str | None:
     paths = os.environ.get("PATH").split(":")
-    for path in paths:
-        if os.path.exists(os.path.join(path, command)):
-            if os.access(os.path.join(path, command), os.X_OK):
-                return os.path.join(path, command)
-            else:
-                continue
-        else:
-            continue
+    for path_dir in paths:
+        joined_path = os.path.join(path_dir, command)
+        if os.path.exists(joined_path) and os.access(joined_path, os.X_OK):
+            return joined_path
     return None
 
-def execute_builtin(command, arguments) -> None:
+def execute_builtin(command: str, arguments: list[str]) -> None:
     if command == "pwd":
         print(os.getcwd(), flush=True)
         return
@@ -49,14 +49,14 @@ def execute_builtin(command, arguments) -> None:
     if command == "exit":
         sys.exit(0)
 
-def execute_executable(command, path, arguments) -> None:
+def execute_executable(command: str, path: str, arguments: list[str]) -> None:
     pid = os.fork()
     if pid == 0:
         os.execv(path, [command] + arguments)
     else:
         os.waitpid(pid, 0)
 
-def type_command(arguments) -> None:
+def type_command(arguments: list[str]) -> None:
     for arg in arguments:
         if is_builtin(arg):
             print(arg + " is a shell builtin", flush=True)
