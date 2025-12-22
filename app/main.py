@@ -1,7 +1,7 @@
 import os
 import sys
 
-builtins = ["pwd", "echo", "exit", "type"]
+builtins = ["pwd", "cd", "echo", "exit", "type"]
 
 def main() -> None:
     while True:
