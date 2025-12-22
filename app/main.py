@@ -15,7 +15,11 @@ def main() -> None:
         tokens = shlex.split(line) or [None]
         command, *arguments = tokens
         arguments, output_file = parse_file_redirect(arguments)
-        redirection_type = "file" if output_file else None
+        if output_file:
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
+            redirection_type = "file"
+        else:
+            redirection_type = "stdout"
 
         if command:
             if is_builtin(command):
@@ -29,6 +33,7 @@ def main() -> None:
             elif (path := get_executable_path(command)):
                 if redirection_type == "file":
                     with open(output_file, "w") as f:
+                        print(f"DEBUG: Running {path} with arguments {arguments}", file=sys.stderr)
                         subprocess.run([path] + arguments, stdout=f, text=True)
                 else:
                     pid = os.fork()
