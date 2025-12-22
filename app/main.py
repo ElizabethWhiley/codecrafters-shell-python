@@ -16,6 +16,7 @@ def main() -> None:
         path = get_executable_path(command)
         if path:
             execute_executable(command, path, arguments)
+            continue
         else:
             sys.stdout.write(command + ": command not found\n")
 
@@ -45,7 +46,11 @@ def execute_builtin(command, arguments) -> None:
         sys.exit(0)
 
 def execute_executable(command, path, arguments) -> None:
-    os.execv(path, [command] + arguments)
+    pid = os.fork()
+    if pid == 0:
+        os.execv(path, [command] + arguments)
+    else:
+        os.waitpid(pid, 0)
 
 def type_command(arguments) -> None:
     for arg in arguments:
