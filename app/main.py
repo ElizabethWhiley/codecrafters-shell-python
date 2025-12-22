@@ -3,13 +3,17 @@ import sys
 
 def main():
     # read the input from the user and remove newline char
-    valid = False
-    while not valid:
+    while True:
         sys.stdout.write("$ ")
         input = sys.stdin.readline().strip()
         if input == "exit":
             sys.exit(0)
-        sys.stdout.write(input + ": command not found\n")
+        command = input.split()[0]
+        arguments = input.split()[1:]
+        if command == "echo":
+            sys.stdout.write(" ".join(arguments) + "\n")
+        else:
+            sys.stdout.write(command + ": command not found\n")
     pass
 
 
