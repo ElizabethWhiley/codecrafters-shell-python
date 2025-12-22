@@ -14,39 +14,39 @@ def main() -> None:
         # Special chars ($, *, ~) are treated as normal; adjacent quoted strings are concatenated.
         tokens = shlex.split(line) or [None]
         command, *arguments = tokens
-        arguments, output_file = parse_output_redirect(arguments)
-        if output_file:
+        arguments, output_file = parse_file_redirect(arguments)
+        redirection_type = "file" if output_file else None
+
+        if command:
             if is_builtin(command):
                 output = builtin_handlers[command](arguments)
-            elif get_executable_path(command):
-                output = subprocess.run([command] + arguments, capture_output=True).stdout
+                if redirection_type == "file":
+                    with open(output_file, "w") as f:
+                        f.write(output or "")
+                else:
+                    if output:
+                        print(output, flush=True)
+            elif (path := get_executable_path(command)):
+                if redirection_type == "file":
+                    with open(output_file, "w") as f:
+                        subprocess.run([path] + arguments, stdout=f, text=True)
+                else:
+                    pid = os.fork()
+                    if pid == 0:
+                        os.execv(path, [command] + arguments)
+                    else:
+                        os.waitpid(pid, 0)
             else:
                 output = f"{command}: not found"
-            with open(output_file, "w") as f:
-                f.write(output)
-            continue
-
-        if not command:
-            continue
-
-        if is_builtin(command):
-            output = builtin_handlers[command](arguments)
-            print(output, flush=True)
-            continue
-
-        path = get_executable_path(command)
-        if path:
-            pid = os.fork()
-            if pid == 0:
-                os.execv(path, [command] + arguments)
-            else:
-                os.waitpid(pid, 0)
-        else:
-            print(f"{command}: not found", flush=True)
+                if redirection_type == "file":
+                    with open(output_file, "w") as f:
+                        f.write(output)
+                else:
+                    print(output, flush=True)
 
 
 # Parse an argument like this > and make it divert the output to a file
-def parse_output_redirect(arguments: list[str]) -> tuple[list[str], str | None]:
+def parse_file_redirect(arguments: list[str]) -> tuple[list[str], str | None]:
     for i, arg in enumerate(arguments):
         if arg == ">":
             if i + 1 >= len(arguments):
@@ -54,7 +54,6 @@ def parse_output_redirect(arguments: list[str]) -> tuple[list[str], str | None]:
             output_file = arguments[i + 1]
             return arguments[:i], output_file
     return arguments, None
-
 
 if __name__ == "__main__":
     main()
