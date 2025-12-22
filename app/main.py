@@ -25,7 +25,6 @@ def is_executable(command):
         full_path = os.path.join(path, command)
         if os.path.exists(full_path):
             if os.access(full_path, os.X_OK):
-                print("Found executable: " + full_path)
                 return True
             else:
                 continue
@@ -51,7 +50,7 @@ def type_command(arguments):
         if is_builtin(arg):
             sys.stdout.write(arg + " is a shell builtin\n")
         elif is_executable(arg):
-            sys.stdout.write(arg + " is " + os.path.abspath(arg) + "\n")
+            sys.stdout.write(arg + " is in " + os.path.abspath(arg) + "\n")
         else:
             sys.stdout.write(arg + ": not found\n")
 
