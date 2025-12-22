@@ -20,16 +20,18 @@ def is_builtin(command):
     return command in builtins
 
 def is_executable(command):
-    if os.path.exists(command):
-        if os.access(command, os.X_OK):
-            print("Found executable: " + os.path.abspath(command))
-            return True
+    paths = os.environ.get("PATH").split(":")
+    for path in paths:
+        full_path = os.path.join(path, command)
+        if os.path.exists(full_path):
+            if os.access(full_path, os.X_OK):
+                print("Found executable: " + full_path)
+                return True
+            else:
+                continue
         else:
-            print("Executable lacks execute permissions: " + os.path.abspath(command))
-            return False
-    else:
-        print("Executable not found: " + command)
-        return False
+            continue
+    return False
 
 def execute_builtin(command, arguments):
     if command == "type":
