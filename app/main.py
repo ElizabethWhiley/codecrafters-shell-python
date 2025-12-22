@@ -3,7 +3,7 @@ import sys
 
 builtins = ["echo", "exit", "type"]
 
-def main():
+def main() -> None:
     while True:
         sys.stdout.write("$ ")
         input = sys.stdin.readline().strip()
@@ -11,15 +11,18 @@ def main():
         arguments = input.split()[1:]
         if is_builtin(command):
             execute_builtin(command, arguments)
-        elif is_executable(command):
-            execute_executable(get_executable_path(command), arguments)
+            continue
+
+        path = get_executable_path(command)
+        if path:
+            execute_executable(command, path, arguments)
         else:
             sys.stdout.write(command + ": command not found\n")
 
-def is_builtin(command):
+def is_builtin(command) -> bool:
     return command in builtins
 
-def get_executable_path(command):
+def get_executable_path(command) -> str | None:
     paths = os.environ.get("PATH").split(":")
     for path in paths:
         if os.path.exists(os.path.join(path, command)):
@@ -31,11 +34,7 @@ def get_executable_path(command):
             continue
     return None
 
-def is_executable(command):
-    path = get_executable_path(command)
-    return path is not None
-
-def execute_builtin(command, arguments):
+def execute_builtin(command, arguments) -> None:
     if command == "type":
         type_command(arguments)
 
@@ -45,15 +44,18 @@ def execute_builtin(command, arguments):
     if command == "exit":
         sys.exit(0)
 
-def execute_executable(command, arguments):
-    os.execv(command, arguments)
+def execute_executable(command, path, arguments) -> None:
+    os.execv(path, [command] + arguments)
 
-def type_command(arguments):
+def type_command(arguments) -> None:
     for arg in arguments:
         if is_builtin(arg):
             sys.stdout.write(arg + " is a shell builtin\n")
-        elif is_executable(arg):
-            sys.stdout.write(arg + " is " + get_executable_path(arg) + "\n")
+            continue
+
+        path = get_executable_path(arg)
+        if path:
+            sys.stdout.write(arg + " is " + path + "\n")
         else:
             sys.stdout.write(arg + ": not found\n")
 
