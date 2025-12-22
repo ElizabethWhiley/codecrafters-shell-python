@@ -8,11 +8,7 @@ def handle_cd(arguments: list[str]) -> None:
         return
 
     absolute_path = os.path.abspath(arguments[0])
-    if not os.path.isdir(absolute_path):
-        print(f"cd: {arguments[0]}: Not a directory", flush=True)
-        return
-
-    if not os.path.exists(absolute_path):
+    if not os.path.exists(absolute_path) or not os.path.isdir(absolute_path):
         print(f"cd: {arguments[0]}: No such file or directory", flush=True)
         return
 
