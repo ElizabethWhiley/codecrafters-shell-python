@@ -7,8 +7,8 @@ from .path_utils import get_executable_path
 def main() -> None:
     while True:
         print(f"$ ", end="", flush=True)
-        line = sys.stdin.readline().strip().split()
-        command, *arguments = line or (None, [])
+        line = sys.stdin.readline().strip()
+        command, *arguments = parse_arguments(line)
 
         if not command:
             continue
@@ -29,3 +29,11 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+def parse_arguments(line: str) -> list[str]:
+    if line.startswith("'"):
+        return [line[1:-1]]
+    if line.startswith('"'):
+        return [line[1:-1]]
+    return line.split()
