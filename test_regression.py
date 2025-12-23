@@ -101,17 +101,41 @@ def test_tab_completion():
     assert len(completions) == 1, f"'ech' should have 1 completion, got: {completions}"
     print("  ✓ 'ech' completes to 'echo'")
 
+    # Test that single matches get trailing space in completer
+    # (The completer in repl.py adds a space when there's exactly one match)
+    from app.repl import Repl
+    from app.command_parser import CommandParser
+    from app.redirect_parser import RedirectParser
+    redirect_parser = RedirectParser()
+    command_parser = CommandParser(redirect_parser)
+    repl = Repl(command_parser)
+    # Test completer adds space for single match
+    single_match = repl._get_completions("ech", 0)
+    assert single_match == "echo ", f"Single match should have trailing space, got: '{single_match}'"
+    print("  ✓ single match adds trailing space in completer")
+
     # Test "exi" completes to "exit"
     completions = get_builtin_completions("exi")
     assert "exit" in completions, f"'exi' should complete to 'exit', got: {completions}"
     assert len(completions) == 1, f"'exi' should have 1 completion, got: {completions}"
     print("  ✓ 'exi' completes to 'exit'")
 
+    # Test completer adds space for "exi" -> "exit"
+    single_match = repl._get_completions("exi", 0)
+    assert single_match == "exit ", f"Single match should have trailing space, got: '{single_match}'"
+    print("  ✓ 'exi' completer adds trailing space")
+
     # Test "e" might match multiple commands
     completions = get_builtin_completions("e")
     assert "echo" in completions, f"'e' should include 'echo', got: {completions}"
     assert "exit" in completions, f"'e' should include 'exit', got: {completions}"
     print("  ✓ 'e' matches multiple commands")
+
+    # Test completer does NOT add space for multiple matches
+    first_match = repl._get_completions("e", 0)
+    assert first_match in ["echo", "exit"], f"First match should be 'echo' or 'exit', got: '{first_match}'"
+    assert not first_match.endswith(" "), f"Multiple matches should NOT have trailing space, got: '{first_match}'"
+    print("  ✓ multiple matches do NOT add trailing space")
 
     # Test no matches
     completions = get_builtin_completions("xyz")

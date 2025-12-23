@@ -50,10 +50,10 @@ class Repl():
 
           self.matches = builtin_matches + external_matches
 
-          if self.matches == 1:
-            self.matches[0] = self.matches[0] + " "
+      if len(self.matches) == 1:
+          self.matches[0] = self.matches[0] + " "
 
-      # Return the match at index 'state', or None if we've exhausted all matches
+        # Return the match at index 'state', or None if we've exhausted all matches
       if state < len(self.matches):
           return self.matches[state]
       return None
