@@ -78,7 +78,7 @@ class Repl():
         # This tells readline "no completion" but we still ring the bell
         return ""
 
-    def _handle_second_tab(self) -> str | None:
+    def _handle_second_tab(self, text) -> str | None:
       """Handle second TAB press: print all matches, clear matches, return None."""
       # Sort matches alphabetically
       sorted_matches = sorted(self.matches)
