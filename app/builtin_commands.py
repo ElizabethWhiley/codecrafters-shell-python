@@ -25,9 +25,6 @@ def handle_echo(arguments: list[str]) -> str | None:
 def handle_exit(arguments: list[str]) -> None:
     sys.exit(0)
 
-def handle_ls(arguments: list[str]) -> str | None:
-    return " ".join(os.listdir(os.getcwd()))
-
 def handle_pwd(arguments: list[str]) -> str | None:
     return os.getcwd()
 
@@ -47,7 +44,6 @@ builtin_handlers = {
     "cd": handle_cd,
     "echo": handle_echo,
     "exit": handle_exit,
-    "ls": handle_ls,
     "pwd": handle_pwd,
     "type": handle_type,
 }
