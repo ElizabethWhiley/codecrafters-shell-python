@@ -2,7 +2,7 @@ import os
 import sys
 from .path_utils import get_executable_path
 
-def handle_cd(arguments: list[str]) -> str | None:
+def _handle_cd(arguments: list[str]) -> str | None:
     if len(arguments) == 0:
         return "cd: missing argument\n"
 
@@ -18,17 +18,16 @@ def handle_cd(arguments: list[str]) -> str | None:
 
     os.chdir(absolute_path)
 
-
-def handle_echo(arguments: list[str]) -> str | None:
+def _handle_echo(arguments: list[str]) -> str | None:
     return " ".join(arguments) + "\n"
 
-def handle_exit(arguments: list[str]) -> None:
+def _handle_exit(arguments: list[str]) -> None:
     sys.exit(0)
 
-def handle_pwd(arguments: list[str]) -> str | None:
+def _handle_pwd(arguments: list[str]) -> str | None:
     return os.getcwd() + "\n"
 
-def handle_type(arguments: list[str]) -> str | None:
+def _handle_type(arguments: list[str]) -> str | None:
     for arg in arguments:
         if is_builtin(arg):
             return f"{arg} is a shell builtin\n"
@@ -41,11 +40,11 @@ def handle_type(arguments: list[str]) -> str | None:
             return f"{arg}: not found\n"
 
 builtin_handlers = {
-    "cd": handle_cd,
-    "echo": handle_echo,
-    "exit": handle_exit,
-    "pwd": handle_pwd,
-    "type": handle_type,
+    "cd": _handle_cd,
+    "echo": _handle_echo,
+    "exit": _handle_exit,
+    "pwd": _handle_pwd,
+    "type": _handle_type,
 }
 
 def is_builtin(command: str) -> bool:

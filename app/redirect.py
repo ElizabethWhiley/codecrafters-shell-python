@@ -20,7 +20,7 @@ class Redirect:
 
 def parse_redirects(arguments: list[str]) -> tuple[Redirect, list[str]]:
     for i, arg in enumerate(arguments):
-        redirect_type, mode = parse_type(arg)  # Unpack the tuple
+        redirect_type, mode = _parse_redirect_type(arg)  # Unpack the tuple
         if redirect_type != RedirectionType.AUTO:  # Found a redirect operator
             if i + 1 >= len(arguments):
                 return Redirect(RedirectionType.AUTO, RedirectMode.WRITE, None), arguments
@@ -29,7 +29,7 @@ def parse_redirects(arguments: list[str]) -> tuple[Redirect, list[str]]:
     # No redirect found
     return Redirect(RedirectionType.AUTO, RedirectMode.WRITE, None), arguments
 
-def parse_type(argument: str) -> tuple[RedirectionType, RedirectMode]:
+def _parse_redirect_type(argument: str) -> tuple[RedirectionType, RedirectMode]:
     # Map redirect operators to (type, mode) tuples
     redirect_map = {
         ">": (RedirectionType.STDOUT, RedirectMode.WRITE),

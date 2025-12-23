@@ -1,13 +1,10 @@
-import sys
 from .parser import parse_command
+from .builtin_commands import builtin_handlers
+from .repl import Repl
 
 def main() -> None:
-    while True:
-        print(f"$ ", end="", flush=True)
-        line = sys.stdin.readline().strip()
-        command = parse_command(line) if line else None
-        if command:
-            command.execute()
+    repl = Repl(builtin_handlers, parse_command)
+    repl.run()
 
 if __name__ == "__main__":
     main()
