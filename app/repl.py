@@ -61,13 +61,13 @@ class Repl():
           # Second TAB: show all matches, then prompt
           if self.tab_count == 2:
               # Sort matches alphabetically
-              sorted_matches = sorted(self.matches)
+              self.matches = sorted(self.matches)
               # Print matches separated by two spaces
-              print("  ".join(sorted_matches))
+              print("  ".join(self.matches))
               # Print prompt with original prefix on new line
-              print(f"$ {text}", end="", flush=True)
-              # Return original text to keep prefix in input line
-              return text
+              print(f"\n$ {text}", end="", flush=True)
+              # Return None to signal end of completions
+              return None
 
           # Add trailing space if exactly one match
           if len(self.matches) == 1:
