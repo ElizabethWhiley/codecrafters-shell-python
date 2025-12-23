@@ -1,13 +1,9 @@
 import os
 from .redirect import Redirect, RedirectionType
 
-# checks redirect type and routes
-# cfor file/stout write to file
-# for file/stderr write to file
-# for stdout/stderr write to stdout/stderr
-# for auto write to stdout/stderr
 def handle_output(output: str | None, redirect: Redirect) -> None:
-  if redirect.type == RedirectionType.STDOUT or redirect.type == RedirectionType.STDERR:
+  # For builtin commands: STDOUT redirects go to file, STDERR redirects are ignored (builtins don't have separate stderr)
+  if redirect.type == RedirectionType.STDOUT:
     # Write output to redirect.file
     if redirect.file:
       os.makedirs(os.path.dirname(redirect.file), exist_ok=True)
@@ -20,6 +16,7 @@ def handle_output(output: str | None, redirect: Redirect) -> None:
         print(output, end="", flush=True)
       return None
   else:
+    # STDERR redirects and AUTO: print to stdout (builtins don't have separate stderr to redirect)
     if output:
       print(output, end="", flush=True)
     return None
