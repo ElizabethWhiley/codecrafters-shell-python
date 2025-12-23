@@ -85,7 +85,7 @@ class Repl():
               print(f"\n$ {text}", end="", flush=True)
               readline.redisplay()
               # Return None to tell readline: "Don't insert anything, we've printed the list"
-              return None
+              return text
 
       # ============================================================
       # STATE > 0: Readline is asking for MORE matches (cycling through)
