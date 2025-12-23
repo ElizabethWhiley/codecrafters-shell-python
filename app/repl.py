@@ -81,11 +81,11 @@ class Repl():
               # Sort matches alphabetically and print them all on one line
               self.matches = sorted(self.matches)
               print("  ".join(self.matches))  # Two spaces between each match
-              # Print newline and prompt, then redisplay to refresh readline's display
-              print(f"\n$ ", end="", flush=True)
-              readline.redisplay()
-              # Return None to tell readline: "Don't insert anything, we've printed the list"
-              return None
+              # Print newline after matches
+              print()
+              # Return empty string to try to clear readline's buffer
+              # (Python's readline doesn't have a direct way to clear/reset the line)
+              return ""
 
       # ============================================================
       # STATE > 0: Readline is asking for MORE matches (cycling through)
