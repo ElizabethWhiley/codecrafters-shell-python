@@ -4,7 +4,7 @@ from .path_utils import get_executable_path
 
 def handle_cd(arguments: list[str]) -> str | None:
     if len(arguments) == 0:
-        return "cd: missing argument"
+        return "cd: missing argument\n"
 
 
     if arguments[0] == "~":
@@ -14,7 +14,7 @@ def handle_cd(arguments: list[str]) -> str | None:
 
     absolute_path = os.path.abspath(arguments[0])
     if not os.path.exists(absolute_path) or not os.path.isdir(absolute_path):
-        return f"cd: {arguments[0]}: No such file or directory"
+        return f"cd: {arguments[0]}: No such file or directory\n"
 
     os.chdir(absolute_path)
 
