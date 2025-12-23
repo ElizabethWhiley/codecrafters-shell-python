@@ -91,13 +91,10 @@ class Repl():
       # STATE > 0: Readline is asking for MORE matches (cycling through)
       # ============================================================
       if state > 0:
-          # If this is the FIRST TAB press, let readline cycle through matches
-          # (user can keep pressing TAB to see each match)
+          # If this is the FIRST TAB press with multiple matches, don't return anything
+          # (we already rang the bell and returned None on state == 0)
+          # This prevents readline from inserting matches on the first TAB
           if self.tab_count == 1:
-              # Return the match at index 'state' if it exists
-              if state < len(self.matches):
-                  return self.matches[state]
-              # No more matches, tell readline to stop
               return None
 
           # If this is the SECOND TAB press, we've already printed all matches
