@@ -53,6 +53,22 @@ class Repl():
             self.tab_count = 1  # First TAB press for this prefix
           self.last_prefix = text
 
+          # First TAB: ring bell
+          if self.tab_count == 1:
+              sys.stderr.write('\x07')  # Ring bell
+              sys.stderr.flush()
+
+          # Second TAB: show all matches, then prompt
+          if self.tab_count == 2:
+              # Sort matches alphabetically
+              sorted_matches = sorted(self.matches)
+              # Print matches separated by two spaces
+              print("  ".join(sorted_matches))
+              # Print prompt with original prefix on new line
+              print(f"$ {text}", end="", flush=True)
+              # Return original text to keep prefix in input line
+              return text
+
           # Add trailing space if exactly one match
           if len(self.matches) == 1:
               self.matches[0] = self.matches[0] + " "

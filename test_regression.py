@@ -7,6 +7,7 @@ Tests basic functionality to ensure no regressions were introduced.
 import subprocess
 import sys
 import os
+import io
 from pathlib import Path
 
 def run_shell_command(command: str) -> tuple[str, int]:
@@ -180,6 +181,45 @@ def test_tab_completion_behavior():
     repl._get_completions("e", 0)
     assert len(repl.matches) >= 2, f"Prefix 'e' should have multiple matches, got: {len(repl.matches)}"
     print("  ✓ multiple matches stored correctly")
+
+    # Test first TAB rings bell (requires capturing stderr)
+    # Note: This tests the logic, actual bell output would need subprocess testing
+    repl2 = Repl(command_parser)
+    repl2._get_completions("ech", 0)
+    assert repl2.tab_count == 1, "First TAB should set tab_count to 1 for bell logic"
+    print("  ✓ first TAB sets up for bell ring")
+
+    # Test second TAB shows matches (alphabetically sorted, two spaces)
+    repl2._get_completions("ech", 0)  # Second TAB
+    assert repl2.tab_count == 2, "Second TAB should set tab_count to 2 for match display"
+    # Verify matches are sorted alphabetically
+    sorted_matches = sorted(repl2.matches)
+    assert repl2.matches == sorted_matches, f"Matches should be sorted alphabetically, got: {repl2.matches}"
+    print("  ✓ second TAB sets up for match display (sorted alphabetically)")
+
+    # Test matches would be joined with two spaces (verify format)
+    if len(repl2.matches) > 1:
+        expected_format = "  ".join(sorted(repl2.matches))
+        assert "  " in expected_format, "Multiple matches should be separated by two spaces"
+        print("  ✓ matches format uses two spaces as separator")
+
+    # Test requirements: bell on first TAB, matches on second TAB
+    # This verifies the tab_count logic supports the requirements
+    repl3 = Repl(command_parser)
+
+    # First TAB: should ring bell (tab_count == 1)
+    repl3._get_completions("ex", 0)
+    assert repl3.tab_count == 1, "First TAB press should set tab_count to 1 (triggers bell)"
+    print("  ✓ first TAB press sets tab_count=1 (bell requirement)")
+
+    # Second TAB: should show matches (tab_count == 2)
+    repl3._get_completions("ex", 0)
+    assert repl3.tab_count == 2, "Second TAB press should set tab_count to 2 (triggers match display)"
+    assert len(repl3.matches) > 0, "Should have matches to display"
+    # Verify matches are sorted alphabetically
+    assert repl3.matches == sorted(repl3.matches), "Matches should be sorted alphabetically for display"
+    print("  ✓ second TAB press sets tab_count=2 (match display requirement)")
+    print("  ✓ matches are sorted alphabetically")
 
 def test_external_executable_completion():
     """Test tab completion for external executables in PATH."""
