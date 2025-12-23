@@ -1,5 +1,5 @@
 import os
-from .redirect import Redirect, RedirectionType
+from ..models.redirect import Redirect, RedirectionType
 
 def handle_output(output: str | None, redirect: Redirect) -> None:
     if redirect.type == RedirectionType.STDOUT:
@@ -23,3 +23,4 @@ def _write_to_file(content: str, filepath: str, mode: str) -> None:
 def _print_to_stdout(output: str | None) -> None:
     if output:
         print(output, end="", flush=True)
+

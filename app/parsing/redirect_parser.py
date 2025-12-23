@@ -1,4 +1,4 @@
-from .redirect import Redirect, RedirectionType, RedirectMode
+from ..models.redirect import Redirect, RedirectionType, RedirectMode
 
 class RedirectParser:
     def __init__(self):
@@ -26,3 +26,4 @@ class RedirectParser:
 
     def _parse_redirect_type(self, argument: str) -> tuple[RedirectionType, RedirectMode]:
         return self.redirect_map.get(argument, (RedirectionType.AUTO, RedirectMode.WRITE))
+

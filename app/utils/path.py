@@ -10,3 +10,4 @@ def get_executable_path(command: str) -> str | None:
         if os.path.exists(joined_path) and os.access(joined_path, os.X_OK):
             return joined_path
     return None
+

@@ -1,11 +1,10 @@
 import os
 import sys
-from .path_utils import get_executable_path
+from ..utils.path import get_executable_path
 
 def _handle_cd(arguments: list[str]) -> str | None:
     if len(arguments) == 0:
         return "cd: missing argument\n"
-
 
     if arguments[0] == "~":
         arguments[0] = os.path.expanduser("~")
@@ -49,3 +48,4 @@ builtin_handlers = {
 
 def is_builtin(command: str) -> bool:
     return command in builtin_handlers
+
