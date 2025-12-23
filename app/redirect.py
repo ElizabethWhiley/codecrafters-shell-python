@@ -26,12 +26,10 @@ def parse_redirects(arguments: list[str]) -> tuple[Redirect, list[str]]:
 
 def parse_type(argument: str) -> RedirectionType:
     if argument == ">":
-        return RedirectionType.FILE
+        return RedirectionType.STDOUT
     elif argument == "1>":
-        return RedirectionType.FILE
+        return RedirectionType.STDOUT
     elif argument == "2>":
         return RedirectionType.STDERR
-    elif argument == ">>":
-        return RedirectionType.APPEND
     else:
         return RedirectionType.AUTO
