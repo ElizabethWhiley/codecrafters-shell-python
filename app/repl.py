@@ -71,10 +71,10 @@ class Repl():
               if len(self.matches) == 1:
                   return self.matches[0] + " "
 
-              # If MULTIPLE matches exist, return the first one (no space)
-              # This lets readline insert it, and user can press TAB again to cycle
+              # If MULTIPLE matches exist, don't return anything (just ring bell)
+              # This prevents readline from inserting anything. User presses TAB again to see all matches.
               if len(self.matches) > 1:
-                  return self.matches[0]
+                  return None
 
           # Step 4: Handle SECOND TAB press (tab_count == 2)
           if self.tab_count == 2:
