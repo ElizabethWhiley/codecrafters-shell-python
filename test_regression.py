@@ -148,6 +148,39 @@ def test_tab_completion():
     assert isinstance(completions, list), f"Empty prefix should return a list, got: {type(completions)}"
     print("  ✓ empty prefix handled")
 
+def test_tab_completion_behavior():
+    """Test tab completion behavior: bell on first TAB, show matches on second TAB."""
+    print("Testing tab completion behavior...")
+
+    from app.repl import Repl
+    from app.command_parser import CommandParser
+    from app.redirect_parser import RedirectParser
+    redirect_parser = RedirectParser()
+    command_parser = CommandParser(redirect_parser)
+    repl = Repl(command_parser)
+
+    # Test first TAB press - should increment tab_count
+    repl._get_completions("ech", 0)
+    assert repl.tab_count == 1, f"First TAB should set tab_count to 1, got: {repl.tab_count}"
+    assert repl.last_prefix == "ech", f"last_prefix should be 'ech', got: {repl.last_prefix}"
+    print("  ✓ first TAB increments tab_count")
+
+    # Test second TAB press - should increment tab_count to 2
+    repl._get_completions("ech", 0)
+    assert repl.tab_count == 2, f"Second TAB should set tab_count to 2, got: {repl.tab_count}"
+    print("  ✓ second TAB increments tab_count to 2")
+
+    # Test prefix change resets tab_count
+    repl._get_completions("exi", 0)
+    assert repl.tab_count == 1, f"New prefix should reset tab_count to 1, got: {repl.tab_count}"
+    assert repl.last_prefix == "exi", f"last_prefix should be 'exi', got: {repl.last_prefix}"
+    print("  ✓ prefix change resets tab_count")
+
+    # Test multiple matches are stored
+    repl._get_completions("e", 0)
+    assert len(repl.matches) >= 2, f"Prefix 'e' should have multiple matches, got: {len(repl.matches)}"
+    print("  ✓ multiple matches stored correctly")
+
 def test_external_executable_completion():
     """Test tab completion for external executables in PATH."""
     print("Testing external executable completion...")
@@ -207,6 +240,7 @@ def main():
         test_command_not_found,
         test_external_commands,
         test_tab_completion,
+        test_tab_completion_behavior,
         test_external_executable_completion,
     ]
 

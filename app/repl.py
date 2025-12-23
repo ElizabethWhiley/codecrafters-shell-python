@@ -8,6 +8,8 @@ class Repl():
       self.command_parser = command_parser
       self.matches = []
       self.setup_completion()
+      self.last_prefix = ""
+      self.tab_count = 0
 
     def setup_completion(self) -> None:
         readline.set_completer(self._get_completions)
@@ -44,6 +46,12 @@ class Repl():
           # Use dict.fromkeys to preserve order: builtins come before externals
           all_matches = builtin_matches + external_matches
           self.matches = list(dict.fromkeys(all_matches))
+
+          if self.last_prefix == text:
+            self.tab_count += 1
+          else:
+            self.tab_count = 1  # First TAB press for this prefix
+          self.last_prefix = text
 
           # Add trailing space if exactly one match
           if len(self.matches) == 1:
