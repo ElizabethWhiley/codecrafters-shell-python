@@ -83,6 +83,7 @@ class Repl():
               print("  ".join(self.matches))  # Two spaces between each match
               # Redisplay the prompt with the original prefix (user hasn't typed anything new)
               print(f"\n$ {text}", end="", flush=True)
+              readline.redisplay()
               # Return None to tell readline: "Don't insert anything, we've printed the list"
               return None
 
