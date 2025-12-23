@@ -26,19 +26,19 @@ def handle_exit(arguments: list[str]) -> None:
     sys.exit(0)
 
 def handle_pwd(arguments: list[str]) -> str | None:
-    return os.getcwd()
+    return os.getcwd() + "\n"
 
 def handle_type(arguments: list[str]) -> str | None:
     for arg in arguments:
         if is_builtin(arg):
-            return f"{arg} is a shell builtin"
+            return f"{arg} is a shell builtin\n"
 
         path = get_executable_path(arg)
         if path:
-            return f"{arg} is {path}"
+            return f"{arg} is {path}\n"
 
         else:
-            return f"{arg}: not found"
+            return f"{arg}: not found\n"
 
 builtin_handlers = {
     "cd": handle_cd,
