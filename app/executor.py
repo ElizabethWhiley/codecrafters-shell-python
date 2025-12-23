@@ -10,8 +10,10 @@ def execute_builtin(command: str, arguments: list[str], redirect: Redirect) -> N
     os.makedirs(os.path.dirname(redirect.file), exist_ok=True)
     with open(redirect.file, "w") as f:
       f.write(output or "")
+      f.flush()
   else:
-    print(output, flush=True)
+    if output:
+      print(output, flush=True)
 
 def execute_external(command: str, arguments: list[str], redirect: Redirect) -> None:
   path = get_executable_path(command)
@@ -20,6 +22,7 @@ def execute_external(command: str, arguments: list[str], redirect: Redirect) -> 
       os.makedirs(os.path.dirname(redirect.file), exist_ok=True)
       with open(redirect.file, "w") as f:
         subprocess.run([path] + arguments, stdout=f, text=True)
+        f.flush()
     else:
       pid = os.fork()
       if pid == 0:
@@ -35,5 +38,6 @@ def execute_not_found(command: str, redirect: Redirect) -> None:
     os.makedirs(os.path.dirname(redirect.file), exist_ok=True)
     with open(redirect.file, "w") as f:
       f.write(output)
+      f.flush()
   else:
     print(output, flush=True)

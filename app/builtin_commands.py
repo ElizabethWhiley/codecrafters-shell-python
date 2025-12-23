@@ -20,7 +20,7 @@ def handle_cd(arguments: list[str]) -> str | None:
 
 
 def handle_echo(arguments: list[str]) -> str | None:
-    return " ".join(arguments)
+    return " ".join(arguments) + "\n"
 
 def handle_exit(arguments: list[str]) -> None:
     sys.exit(0)
