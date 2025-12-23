@@ -1,9 +1,11 @@
-from .parser import parse_command
-from .builtin_commands import builtin_handlers
+from .command_parser import CommandParser
+from .redirect_parser import RedirectParser
 from .repl import Repl
 
 def main() -> None:
-    repl = Repl(builtin_handlers, parse_command)
+    redirect_parser = RedirectParser()
+    command_parser = CommandParser(redirect_parser)
+    repl = Repl(command_parser, )
     repl.run()
 
 if __name__ == "__main__":

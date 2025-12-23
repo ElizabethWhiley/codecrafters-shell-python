@@ -5,10 +5,10 @@ from .executor import execute_builtin, execute_external, execute_not_found
 
 
 class Command:
-    def __init__(self, command: str, arguments: list[str], redirect: Redirect):
+    def __init__(self, command: str, arguments: list[str], redirects: Redirect):
         self.command = command
         self.arguments = arguments
-        self.redirect = redirect
+        self.redirect = redirects
 
     def execute(self) -> None:
         if self.command:
