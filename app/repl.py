@@ -24,27 +24,15 @@ class Repl():
                 command.execute()
 
     def _get_completions(self, text: str, state: int) -> str | None:
-        """
-        Completer function for readline tab completion.
+      if state != 0:
+          return None
 
-        Readline calls this repeatedly with state=0, 1, 2, ... until we return None.
-        - state=0: First call - fetch matches and handle first/second TAB
-        - state>0: Subsequent calls - cycle through matches (if allowed)
-        """
-        if state == 0:
-            # First call: fetch matches and update tab count
-            self.matches = self._fetch_matches(text)
-            self._update_tab_count(text)
+      self.matches = self._fetch_matches(text)
+      self._update_tab_count(text)
 
-            # Handle based on which TAB press this is
-            if self.tab_count == 1:
-                return self._handle_first_tab(text)
-            elif self.tab_count == 2:
-                return self._handle_second_tab(text)
-            else:
-                return None
-        else:
-            return None
+      handlers = {1: self._handle_first_tab, 2: self._handle_second_tab}
+      handler = handlers.get(self.tab_count)
+      return handler(text) if handler else None
 
     def _fetch_matches(self, text: str) -> list[str]:
         """Find all possible matches (builtin + external commands)."""
@@ -55,33 +43,22 @@ class Repl():
         return list(dict.fromkeys(all_matches))
 
     def _update_tab_count(self, text: str) -> None:
-        """Track how many times TAB has been pressed for this prefix."""
-        if self.last_prefix == text:
-            # Same prefix = user pressed TAB again
-            self.tab_count += 1
-        else:
-            # New prefix = first TAB press for this prefix
-            self.tab_count = 1
-        self.last_prefix = text
+      self.tab_count = self.tab_count + 1 if self.last_prefix == text else 1
+      self.last_prefix = text
 
     def _handle_first_tab(self, text: str) -> str | None:
-        """Handle first TAB press: ring bell, return match if single, empty string if multiple."""
-        # Ring the bell
-        sys.stderr.write('\x07')
-        sys.stderr.flush()
+      sys.stderr.write('\x07')
+      sys.stderr.flush()
 
-        # If only one match, complete it immediately with trailing space
-        if len(self.matches) == 1:
-            return self.matches[0] + " "
-        elif len(self.matches) > 1:
-          # multiple matches: find the longest common prefix
-          longest_prefix = self._find_longest_common_prefix(self.matches)
-          if len(longest_prefix) > len(text):
-            return longest_prefix
-          else:
-            return None
-        else:
+      if not self.matches:
           return None
+
+      if len(self.matches) == 1:
+          return self.matches[0] + " "
+
+      # Multiple matches: find longest common prefix
+      longest_prefix = self._find_longest_common_prefix(self.matches)
+      return longest_prefix if len(longest_prefix) > len(text) else None
 
     def _handle_second_tab(self, text: str) -> str | None:
       """Handle second TAB press: print all matches, clear matches, return None."""
@@ -99,13 +76,11 @@ class Repl():
       return None
 
     def _find_longest_common_prefix(self, matches: list[str]) -> str:
-          if not matches:
-            return ""
-    # Find the longest common prefix
-          prefix = matches[0]
-          for match in matches[1:]:
-            while not match.startswith(prefix):
+      if not matches:
+          return ""
+
+      prefix = matches[0]
+      for match in matches[1:]:
+          while not match.startswith(prefix) and prefix:
               prefix = prefix[:-1]
-              if not prefix:
-                return ""
-          return prefix
+      return prefix
