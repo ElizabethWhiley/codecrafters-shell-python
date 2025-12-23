@@ -47,7 +47,11 @@ class Repl():
           builtin_matches = get_builtin_completions(text)
           external_matches = get_external_completions(text)
           # Combine and store for subsequent state calls
+
           self.matches = builtin_matches + external_matches
+
+          if self.matches == 1:
+            self.matches[0] = self.matches[0] + " "
 
       # Return the match at index 'state', or None if we've exhausted all matches
       if state < len(self.matches):
