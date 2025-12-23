@@ -73,24 +73,39 @@ class Repl():
         # If only one match, complete it immediately with trailing space
         if len(self.matches) == 1:
             return self.matches[0] + " "
+        elif len(self.matches) > 1:
+          # multiple matches: find the longest common prefix
+          longest_prefix = self._find_longest_common_prefix(self.matches)
+          if len(longest_prefix) > len(text):
+            return longest_prefix
+          else:
+            return None
+        else:
+          return None
 
-        # Multiple matches: return empty string to prevent readline from storing matches
-        # This tells readline "no completion" but we still ring the bell
-        return ""
-
-    def _handle_second_tab(self, text) -> str | None:
+    def _handle_second_tab(self, text: str) -> str | None:
       """Handle second TAB press: print all matches, clear matches, return None."""
       # Sort matches alphabetically
       sorted_matches = sorted(self.matches)
-      # Print matches separated by two spaces on their own line
-      # Ensure it's a complete line with newline
       sys.stdout.write("\n" + "  ".join(sorted_matches) + "\n")
       sys.stdout.flush()
       # Print the prompt and current input
       line_buffer = readline.get_line_buffer()
-      sys.stdout.write(f"$ {line_buffer}")
+      sys.stdout.write(f"$ {line_buffer}\n")
       sys.stdout.flush()
       # Clear matches so readline has nothing to insert
       self.matches = []
       # Return None to stop readline from asking for more
       return None
+
+    def _find_longest_common_prefix(self, matches: list[str]) -> str:
+          if not matches:
+            return ""
+    # Find the longest common prefix
+          prefix = matches[0]
+          for match in matches[1:]:
+            while not match.startswith(prefix):
+              prefix = prefix[:-1]
+              if not prefix:
+                return ""
+          return prefix
