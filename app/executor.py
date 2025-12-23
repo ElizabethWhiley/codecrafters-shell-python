@@ -25,7 +25,6 @@ def execute_external(command: str, arguments: list[str], redirect: Redirect) -> 
   else:
     execute_not_found(command, redirect)
 
-
 def execute_not_found(command: str, redirect: Redirect) -> None:
   output = f"{command}: not found\n"
   handle_output(output, redirect)
