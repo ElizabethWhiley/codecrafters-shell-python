@@ -24,80 +24,75 @@ class Repl():
                 command.execute()
 
     def _get_completions(self, text: str, state: int) -> str | None:
-      """
-      Completer function for readline tab completion.
+        """
+        Completer function for readline tab completion.
 
-      HOW READLINE WORKS:
-      - When user presses TAB, readline calls this function repeatedly with state=0, 1, 2, ...
-      - state=0: "Give me the first match" (we fetch ALL matches here and return the first)
-      - state=1: "Give me the second match" (we return matches[1])
-      - state=2: "Give me the third match" (we return matches[2])
-      - When we return None, readline stops asking and uses what we've given it
+        Readline calls this repeatedly with state=0, 1, 2, ... until we return None.
+        - state=0: First call - fetch matches and handle first/second TAB
+        - state>0: Subsequent calls - cycle through matches (if allowed)
+        """
+        if state == 0:
+            # First call: fetch matches and update tab count
+            self.matches = self._fetch_matches(text)
+            self._update_tab_count(text)
 
-      Args:
-          text: The prefix to complete (e.g., "ech" when user types "ech" + Tab)
-          state: Index provided by readline (0 = first call, 1 = second, etc.)
+            # Handle based on which TAB press this is
+            if self.tab_count == 1:
+                return self._handle_first_tab()
+            elif self.tab_count == 2:
+                return self._handle_second_tab()
+        else:
+            # Subsequent calls: handle cycling through matches
+            return self._handle_cycling(state)
 
-      Returns:
-          Completion string at index 'state', or None if no more matches
-      """
+        return None
 
-      # ============================================================
-      # STATE == 0: This is the FIRST call when TAB is pressed
-      # ============================================================
-      if state == 0:
-          # Step 1: Find all possible matches (builtin commands + external executables)
-          builtin_matches = get_builtin_completions(text)
-          external_matches = get_external_completions(text)
-          all_matches = builtin_matches + external_matches
-          self.matches = list(dict.fromkeys(all_matches))  # Remove duplicates, keep order
+    def _fetch_matches(self, text: str) -> list[str]:
+        """Find all possible matches (builtin + external commands)."""
+        builtin_matches = get_builtin_completions(text)
+        external_matches = get_external_completions(text)
+        all_matches = builtin_matches + external_matches
+        # Remove duplicates while preserving order (builtins first)
+        return list(dict.fromkeys(all_matches))
 
-          # Step 2: Track how many times TAB has been pressed for this prefix
-          # If the prefix is the same as last time, increment tab_count (second TAB)
-          # If the prefix changed, reset to 1 (first TAB for new prefix)
-          if self.last_prefix == text:
-              self.tab_count += 1  # Same prefix = second TAB press
-          else:
-              self.tab_count = 1   # New prefix = first TAB press
-          self.last_prefix = text
+    def _update_tab_count(self, text: str) -> None:
+        """Track how many times TAB has been pressed for this prefix."""
+        if self.last_prefix == text:
+            # Same prefix = user pressed TAB again
+            self.tab_count += 1
+        else:
+            # New prefix = first TAB press for this prefix
+            self.tab_count = 1
+        self.last_prefix = text
 
-          # Step 3: Handle FIRST TAB press (tab_count == 1)
-          if self.tab_count == 1:
-              # Ring the bell (makes a "ding" sound)
-              sys.stderr.write('\x07')
-              sys.stderr.flush()
+    def _handle_first_tab(self) -> str | None:
+        """Handle first TAB press: ring bell, return match if single, None if multiple."""
+        # Ring the bell
+        sys.stderr.write('\x07')
+        sys.stderr.flush()
 
-              # If only ONE match exists, complete it immediately with a trailing space
-              if len(self.matches) == 1:
-                  return self.matches[0] + " "
+        # If only one match, complete it immediately with trailing space
+        if len(self.matches) == 1:
+            return self.matches[0] + " "
 
-              # If MULTIPLE matches exist, don't return anything (just ring bell)
-              # This prevents readline from inserting anything. User presses TAB again to see all matches.
-              if len(self.matches) > 1:
-                  return None
+        # Multiple matches: don't insert anything (just ring bell)
+        # User presses TAB again to see all matches
+        return None
 
-          # Step 4: Handle SECOND TAB press (tab_count == 2)
-          if self.tab_count == 2:
-              # Sort matches alphabetically and print them all on one line
-              self.matches = sorted(self.matches)
-              print("  ".join(self.matches))  # Two spaces between each match
-              # Print newline after matches
-              print()
-              # Return empty string to try to clear readline's buffer
-              # (Python's readline doesn't have a direct way to clear/reset the line)
-              return ""
+    def _handle_second_tab(self) -> str | None:
+        """Handle second TAB press: print all matches, don't insert anything."""
+        # Sort matches alphabetically
+        sorted_matches = sorted(self.matches)
+        # Print matches separated by two spaces
+        print("  ".join(sorted_matches))
+        # Print newline after matches
+        print()
+        # Don't let readline insert anything
+        return None
 
-      # ============================================================
-      # STATE > 0: Readline is asking for MORE matches (cycling through)
-      # ============================================================
-      if state > 0:
-          # If this is the FIRST TAB press with multiple matches, don't return anything
-          # (we already rang the bell and returned None on state == 0)
-          # This prevents readline from inserting matches on the first TAB
-          if self.tab_count == 1:
-              return None
-
-          # If this is the SECOND TAB press, we've already printed all matches
-          # Don't let readline insert anything - return None for all subsequent calls
-          if self.tab_count == 2:
-              return None
+    def _handle_cycling(self, state: int) -> str | None:
+        """Handle readline asking for more matches (state > 0)."""
+        # For both first and second TAB, we don't want readline to cycle through matches
+        # First TAB: we already returned None, so readline shouldn't call us with state>0
+        # Second TAB: we printed all matches, so don't let readline insert anything
+        return None
