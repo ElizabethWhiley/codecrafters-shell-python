@@ -2,10 +2,10 @@ import os
 import sys
 from .path_utils import get_executable_path
 
-def handle_cd(arguments: list[str]) -> None:
+def handle_cd(arguments: list[str]) -> str | None:
     if len(arguments) == 0:
-        print("cd: missing argument", flush=True)
-        return
+        return "cd: missing argument"
+
 
     if arguments[0] == "~":
         arguments[0] = os.path.expanduser("~")
@@ -14,25 +14,24 @@ def handle_cd(arguments: list[str]) -> None:
 
     absolute_path = os.path.abspath(arguments[0])
     if not os.path.exists(absolute_path) or not os.path.isdir(absolute_path):
-        print(f"cd: {arguments[0]}: No such file or directory", flush=True)
-        return
+        return f"cd: {arguments[0]}: No such file or directory"
 
     os.chdir(absolute_path)
 
 
-def handle_echo(arguments: list[str]) -> None:
+def handle_echo(arguments: list[str]) -> str | None:
     return " ".join(arguments)
 
 def handle_exit(arguments: list[str]) -> None:
     sys.exit(0)
 
-def handle_ls(arguments: list[str]) -> None:
+def handle_ls(arguments: list[str]) -> str | None:
     return " ".join(os.listdir(os.getcwd()))
 
-def handle_pwd(arguments: list[str]) -> None:
+def handle_pwd(arguments: list[str]) -> str | None:
     return os.getcwd()
 
-def handle_type(arguments: list[str]) -> None:
+def handle_type(arguments: list[str]) -> str | None:
     for arg in arguments:
         if is_builtin(arg):
             return f"{arg} is a shell builtin"
@@ -44,9 +43,6 @@ def handle_type(arguments: list[str]) -> None:
         else:
             return f"{arg}: not found"
 
-def is_builtin(command: str) -> bool:
-    return command in builtin_handlers
-
 builtin_handlers = {
     "cd": handle_cd,
     "echo": handle_echo,
@@ -55,3 +51,6 @@ builtin_handlers = {
     "pwd": handle_pwd,
     "type": handle_type,
 }
+
+def is_builtin(command: str) -> bool:
+    return command in builtin_handlers
