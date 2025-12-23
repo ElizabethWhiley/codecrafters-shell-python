@@ -13,7 +13,7 @@ def execute_builtin(command: str, arguments: list[str], redirect: Redirect) -> N
       f.flush()
   else:
     if output:
-      print(output, flush=True)
+      print(output, end="", flush=True)
 
 def execute_external(command: str, arguments: list[str], redirect: Redirect) -> None:
   path = get_executable_path(command)
