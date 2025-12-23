@@ -94,13 +94,3 @@ class Repl():
       self.matches = []
       # Return None to stop readline from asking for more
       return None
-
-    # def _handle_cycling(self, state: int) -> str | None:
-    #     """Handle readline asking for more matches (state > 0)."""
-    #     # First TAB with multiple matches: return empty string to prevent insertion
-    #     if self.tab_count == 1:
-    #         return ""
-    #     # Second TAB: matches already printed and cleared, return None
-    #     if self.tab_count == 2:
-    #         return None
-    #     return None
