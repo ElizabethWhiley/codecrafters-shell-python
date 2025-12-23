@@ -15,8 +15,19 @@ def handle_output(output: str | None, redirect: Redirect) -> None:
       if output:
         print(output, end="", flush=True)
       return None
+  elif redirect.type == RedirectionType.STDERR:
+    # STDERR redirect with builtin: create empty file (builtins don't have stderr), but output still goes to stdout
+    if redirect.file:
+      os.makedirs(os.path.dirname(redirect.file), exist_ok=True)
+      with open(redirect.file, "w") as f:
+        f.write("")  # Create empty file
+        f.flush()
+    # Print output to stdout (builtins don't have separate stderr to redirect)
+    if output:
+      print(output, end="", flush=True)
+    return None
   else:
-    # STDERR redirects and AUTO: print to stdout (builtins don't have separate stderr to redirect)
+    # AUTO: print to stdout
     if output:
       print(output, end="", flush=True)
     return None
