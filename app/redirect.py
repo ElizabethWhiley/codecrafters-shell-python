@@ -28,7 +28,7 @@ def parse_type(argument: str) -> RedirectionType:
     if argument == ">":
         return RedirectionType.FILE
     elif argument == "1>":
-        return RedirectionType.STDOUT
+        return RedirectionType.FILE
     elif argument == "2>":
         return RedirectionType.STDERR
     elif argument == ">>":
