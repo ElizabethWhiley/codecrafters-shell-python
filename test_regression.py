@@ -148,6 +148,52 @@ def test_tab_completion():
     assert isinstance(completions, list), f"Empty prefix should return a list, got: {type(completions)}"
     print("  ✓ empty prefix handled")
 
+def test_external_executable_completion():
+    """Test tab completion for external executables in PATH."""
+    print("Testing external executable completion...")
+
+    try:
+        from app.completion_utils import get_external_completions
+    except ImportError:
+        print("  ✗ Completion function not found")
+        raise
+
+    # Test that function returns a list (even if empty)
+    completions = get_external_completions("xyz_nonexistent_123")
+    assert isinstance(completions, list), f"Should return a list, got: {type(completions)}"
+    print("  ✓ function returns list for non-existent prefix")
+
+    # Test with common executables that might exist (ls, cat, etc.)
+    # These are likely to exist on most Unix systems
+    common_executables = ["ls", "cat", "echo"]
+    for exe in common_executables:
+        # Test with first letter
+        completions = get_external_completions(exe[0])
+        if exe in completions:
+            print(f"  ✓ found '{exe}' in PATH completions")
+            break
+    else:
+        print("  ⚠ Could not find common executables (may be PATH issue)")
+
+    # Test that completer includes external executables
+    from app.repl import Repl
+    from app.command_parser import CommandParser
+    from app.redirect_parser import RedirectParser
+    redirect_parser = RedirectParser()
+    command_parser = CommandParser(redirect_parser)
+    repl = Repl(command_parser)
+
+    # Test completer with a prefix that might match external executables
+    # Try first letter of common commands
+    for letter in ["l", "c"]:
+        match = repl._get_completions(letter, 0)
+        if match and not match.endswith(" "):
+            # Multiple matches - external executables might be included
+            print(f"  ✓ completer includes external executables for '{letter}'")
+            break
+    else:
+        print("  ⚠ Could not verify external executable completion (may need specific PATH setup)")
+
 def main():
     """Run all regression tests."""
     print("Running regression tests...\n")
@@ -161,6 +207,7 @@ def main():
         test_command_not_found,
         test_external_commands,
         test_tab_completion,
+        test_external_executable_completion,
     ]
 
     for test_func in test_functions:

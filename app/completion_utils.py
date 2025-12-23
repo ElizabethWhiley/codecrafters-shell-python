@@ -6,4 +6,11 @@ def get_builtin_completions(prefix: str) -> list[str]:
 
 
 def get_external_completions(prefix: str) -> list[str]:
-    return [command for command in os.listdir(os.getcwd()) if command.startswith(prefix)]
+    completions = []
+    paths = (os.environ.get("PATH") or "").split(":")
+    for path_dir in paths:
+        if os.path.exists(path_dir):
+            for file in os.listdir(path_dir):
+                if file.startswith(prefix) and os.access(os.path.join(path_dir, file), os.X_OK):
+                    completions.append(file)
+    return completions
