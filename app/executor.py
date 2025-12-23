@@ -15,13 +15,13 @@ def execute_external(command: str, arguments: list[str], redirect: Redirect) -> 
     if redirect.type == RedirectionType.STDOUT:
       os.makedirs(os.path.dirname(redirect.file), exist_ok=True)
       with open(redirect.file, "w") as f:
-        subprocess.run([path] + arguments, stdout=f, text=True)
+        subprocess.run([command] + arguments, executable=path, stdout=f, text=True)
     elif redirect.type == RedirectionType.STDERR:
       os.makedirs(os.path.dirname(redirect.file), exist_ok=True)
       with open(redirect.file, "w") as f:
-        subprocess.run([path] + arguments, stderr=f, text=True)
+        subprocess.run([command] + arguments, executable=path, stderr=f, text=True)
     else:
-      subprocess.run([path] + arguments, text=True)
+      subprocess.run([command] + arguments, executable=path, text=True)
   else:
     execute_not_found(command, redirect)
 
