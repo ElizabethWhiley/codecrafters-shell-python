@@ -38,14 +38,13 @@ class Repl():
 
             # Handle based on which TAB press this is
             if self.tab_count == 1:
-                return self._handle_first_tab()
+                return self._handle_first_tab(text)
             elif self.tab_count == 2:
-                return self._handle_second_tab()
+                return self._handle_second_tab(text)
+            else:
+                return None
         else:
-            # Subsequent calls: handle cycling through matches
-            return self._handle_cycling(state)
-
-        return None
+            return None
 
     def _fetch_matches(self, text: str) -> list[str]:
         """Find all possible matches (builtin + external commands)."""
@@ -65,8 +64,8 @@ class Repl():
             self.tab_count = 1
         self.last_prefix = text
 
-    def _handle_first_tab(self) -> str | None:
-        """Handle first TAB press: ring bell, return match if single, None if multiple."""
+    def _handle_first_tab(self, text: str) -> str | None:
+        """Handle first TAB press: ring bell, return match if single, empty string if multiple."""
         # Ring the bell
         sys.stderr.write('\x07')
         sys.stderr.flush()
@@ -75,24 +74,33 @@ class Repl():
         if len(self.matches) == 1:
             return self.matches[0] + " "
 
-        # Multiple matches: don't insert anything (just ring bell)
-        # User presses TAB again to see all matches
-        return None
+        # Multiple matches: return empty string to prevent readline from storing matches
+        # This tells readline "no completion" but we still ring the bell
+        return ""
 
-    def _handle_second_tab(self) -> str | None:
-        """Handle second TAB press: print all matches, don't insert anything."""
-        # Sort matches alphabetically
-        sorted_matches = sorted(self.matches)
-        # Print matches separated by two spaces
-        print("  ".join(sorted_matches))
-        # Print newline after matches
-        print()
-        # Don't let readline insert anything
-        return None
+    def _handle_second_tab(self, text: str) -> str | None:
+      """Handle second TAB press: print all matches, clear matches, return None."""
+      # Sort matches alphabetically
+      sorted_matches = sorted(self.matches)
+      # Print matches separated by two spaces on their own line
+      # Ensure it's a complete line with newline
+      sys.stdout.write("\n" + "  ".join(sorted_matches) + "\n")
+      sys.stdout.flush()
+      # Print the prompt and current input
+      line_buffer = readline.get_line_buffer()
+      sys.stdout.write(f"$ {line_buffer}")
+      sys.stdout.flush()
+      # Clear matches so readline has nothing to insert
+      self.matches = []
+      # Return None to stop readline from asking for more
+      return None
 
-    def _handle_cycling(self, state: int) -> str | None:
-        """Handle readline asking for more matches (state > 0)."""
-        # For both first and second TAB, we don't want readline to cycle through matches
-        # First TAB: we already returned None, so readline shouldn't call us with state>0
-        # Second TAB: we printed all matches, so don't let readline insert anything
-        return None
+    # def _handle_cycling(self, state: int) -> str | None:
+    #     """Handle readline asking for more matches (state > 0)."""
+    #     # First TAB with multiple matches: return empty string to prevent insertion
+    #     if self.tab_count == 1:
+    #         return ""
+    #     # Second TAB: matches already printed and cleared, return None
+    #     if self.tab_count == 2:
+    #         return None
+    #     return None
