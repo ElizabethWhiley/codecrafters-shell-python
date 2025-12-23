@@ -27,9 +27,12 @@ class Repl():
       """
       Completer function for readline tab completion.
 
-      Readline automatically calls this with state=0, 1, 2, ... until None is returned.
-      - state == 0: Fetch all matches and store in self.matches, return first match
-      - state > 0: Return self.matches[state] if it exists, else None (signals end)
+      HOW READLINE WORKS:
+      - When user presses TAB, readline calls this function repeatedly with state=0, 1, 2, ...
+      - state=0: "Give me the first match" (we fetch ALL matches here and return the first)
+      - state=1: "Give me the second match" (we return matches[1])
+      - state=2: "Give me the third match" (we return matches[2])
+      - When we return None, readline stops asking and uses what we've given it
 
       Args:
           text: The prefix to complete (e.g., "ech" when user types "ech" + Tab)
@@ -38,42 +41,65 @@ class Repl():
       Returns:
           Completion string at index 'state', or None if no more matches
       """
+
+      # ============================================================
+      # STATE == 0: This is the FIRST call when TAB is pressed
+      # ============================================================
       if state == 0:
-          # New completion request - fetch all matches
+          # Step 1: Find all possible matches (builtin commands + external executables)
           builtin_matches = get_builtin_completions(text)
           external_matches = get_external_completions(text)
-          # Combine: builtins first (prioritized), then externals, remove duplicates
-          # Use dict.fromkeys to preserve order: builtins come before externals
           all_matches = builtin_matches + external_matches
-          self.matches = list(dict.fromkeys(all_matches))
+          self.matches = list(dict.fromkeys(all_matches))  # Remove duplicates, keep order
 
+          # Step 2: Track how many times TAB has been pressed for this prefix
+          # If the prefix is the same as last time, increment tab_count (second TAB)
+          # If the prefix changed, reset to 1 (first TAB for new prefix)
           if self.last_prefix == text:
-            self.tab_count += 1
+              self.tab_count += 1  # Same prefix = second TAB press
           else:
-            self.tab_count = 1  # First TAB press for this prefix
+              self.tab_count = 1   # New prefix = first TAB press
           self.last_prefix = text
 
-          # First TAB: ring bell
+          # Step 3: Handle FIRST TAB press (tab_count == 1)
           if self.tab_count == 1:
-              sys.stderr.write('\x07')  # Ring bell
+              # Ring the bell (makes a "ding" sound)
+              sys.stderr.write('\x07')
               sys.stderr.flush()
 
-          # Second TAB: show all matches, then prompt
+              # If only ONE match exists, complete it immediately with a trailing space
+              if len(self.matches) == 1:
+                  return self.matches[0] + " "
+
+              # If MULTIPLE matches exist, return the first one (no space)
+              # This lets readline insert it, and user can press TAB again to cycle
+              if len(self.matches) > 1:
+                  return self.matches[0]
+
+          # Step 4: Handle SECOND TAB press (tab_count == 2)
           if self.tab_count == 2:
-              # Sort matches alphabetically
+              # Sort matches alphabetically and print them all on one line
               self.matches = sorted(self.matches)
-              # Print matches separated by two spaces
-              print("  ".join(self.matches))
-              # Print prompt with original prefix on new line
+              print("  ".join(self.matches))  # Two spaces between each match
+              # Redisplay the prompt with the original prefix (user hasn't typed anything new)
               print(f"\n$ {text}", end="", flush=True)
-              # Return None to signal end of completions
+              # Return None to tell readline: "Don't insert anything, we've printed the list"
               return None
 
-          # Add trailing space if exactly one match
-          if len(self.matches) == 1:
-              self.matches[0] = self.matches[0] + " "
+      # ============================================================
+      # STATE > 0: Readline is asking for MORE matches (cycling through)
+      # ============================================================
+      if state > 0:
+          # If this is the FIRST TAB press, let readline cycle through matches
+          # (user can keep pressing TAB to see each match)
+          if self.tab_count == 1:
+              # Return the match at index 'state' if it exists
+              if state < len(self.matches):
+                  return self.matches[state]
+              # No more matches, tell readline to stop
+              return None
 
-      # Return the match at index 'state', or None if we've exhausted all matches
-      if state < len(self.matches):
-          return self.matches[state]
-      return None
+          # If this is the SECOND TAB press, we've already printed all matches
+          # Don't let readline insert anything - return None for all subsequent calls
+          if self.tab_count == 2:
+              return None
