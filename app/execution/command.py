@@ -1,11 +1,10 @@
-import os
 import subprocess
 from typing import TextIO
 from ..builtins.handlers import is_builtin, builtin_handlers
 from ..utils.path import get_executable_path
 from ..models.redirect import Redirect, RedirectionType
 from ..models.shell_context import ShellContext
-from ..utils.output import handle_output
+from ..utils.output import handle_output, _ensure_directory_exists
 from .builtin_process import BuiltinProcess
 
 
@@ -46,7 +45,7 @@ class Command:
         handle_output(output, self.redirect)
 
     def _execute_with_file_redirect(self) -> None:
-        os.makedirs(os.path.dirname(self.redirect.file), exist_ok=True)
+        _ensure_directory_exists(self.redirect.file)
         with open(self.redirect.file, self.redirect.mode.value, encoding="utf-8") as file:
             if self.redirect.type == RedirectionType.STDOUT:
                 subprocess.run(
