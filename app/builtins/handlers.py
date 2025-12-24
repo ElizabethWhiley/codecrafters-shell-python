@@ -3,6 +3,14 @@ import sys
 from typing import TextIO
 from ..utils.path import get_executable_path
 from ..models.shell_context import ShellContext
+from ..models.redirect import FileMode
+
+# Constants
+HOME_DIR_SYMBOL = "~"
+HISTORY_FLAG_READ = "-r"
+HISTORY_FLAG_WRITE = "-w"
+HISTORY_FLAG_APPEND = "-a"
+HISTORY_FLAGS = {HISTORY_FLAG_READ, HISTORY_FLAG_WRITE, HISTORY_FLAG_APPEND}
 
 # Note: All builtin handlers accept a 'context' parameter for consistency,
 # even if not all handlers use it. This allows for a uniform function signature
@@ -20,9 +28,9 @@ def _handle_cd(  # pylint: disable=unused-argument
     if len(arguments) == 0:
         return "cd: missing argument\n"
 
-    if arguments[0] == "~":
-        arguments[0] = os.path.expanduser("~")
-    elif arguments[0].startswith("~"):
+    if arguments[0] == HOME_DIR_SYMBOL:
+        arguments[0] = os.path.expanduser(HOME_DIR_SYMBOL)
+    elif arguments[0].startswith(HOME_DIR_SYMBOL):
         arguments[0] = os.path.expanduser(arguments[0])
 
     absolute_path = os.path.abspath(arguments[0])
@@ -52,7 +60,7 @@ def _handle_exit(  # pylint: disable=unused-argument
     if context and context.history:
         histfile = context.history.get_histfile()
         if histfile:
-            context.history.write_to_file(histfile, mode="w")
+            context.history.write_to_file(histfile, mode=FileMode.WRITE.value)
     sys.exit(0)
 
 def _handle_history(  # pylint: disable=unused-argument
@@ -69,17 +77,17 @@ def _handle_history(  # pylint: disable=unused-argument
     flag_or_num = arguments[0]
     result = None
 
-    if flag_or_num in ["-r", "-w", "-a"]:
+    if flag_or_num in HISTORY_FLAGS:
         if len(arguments) < 2:
             return f"history: {flag_or_num} requires a file path\n"
 
         file_path = arguments[1]
-        if flag_or_num == "-r":
+        if flag_or_num == HISTORY_FLAG_READ:
             context.history.read_from_file(file_path)
-        elif flag_or_num == "-w":
-            context.history.write_to_file(file_path, mode="w")
-        elif flag_or_num == "-a":
-            context.history.write_to_file(file_path, mode="a")
+        elif flag_or_num == HISTORY_FLAG_WRITE:
+            context.history.write_to_file(file_path, mode=FileMode.WRITE.value)
+        elif flag_or_num == HISTORY_FLAG_APPEND:
+            context.history.write_to_file(file_path, mode=FileMode.APPEND.value)
     elif flag_or_num.isdigit():
         count = int(flag_or_num)
         result = context.history.format_last_n(count)

@@ -7,8 +7,8 @@ class RedirectionType(Enum):
     STDERR = auto()
     AUTO = auto()
 
-class RedirectMode(Enum):
-    """File open modes for redirection."""
+class FileMode(Enum):
+    """File write modes (write or append)."""
     WRITE = "w"
     APPEND = "a"
 
@@ -16,5 +16,5 @@ class RedirectMode(Enum):
 class Redirect:
     """Represents output redirection configuration."""
     type: RedirectionType
-    mode: RedirectMode
+    mode: FileMode
     file: str | None = None
