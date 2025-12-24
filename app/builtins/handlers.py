@@ -2,7 +2,7 @@ import os
 import sys
 from ..utils.path import get_executable_path
 
-def _handle_cd(arguments: list[str], stdin=None) -> str | None:
+def _handle_cd(arguments: list[str], _stdin=None) -> str | None:
     if len(arguments) == 0:
         return "cd: missing argument\n"
 
@@ -23,57 +23,46 @@ def _handle_echo(arguments: list[str], stdin=None) -> str | None:
         return stdin.read()
     return " ".join(arguments) + "\n"
 
-def _handle_exit(arguments: list[str], stdin=None) -> None:
+def _handle_exit(_arguments: list[str], _stdin=None) -> None:
     sys.exit(0)
 
-def _handle_pwd(arguments: list[str], stdin=None) -> str | None:
+def _handle_pwd(_arguments: list[str], _stdin=None) -> str | None:
     return os.getcwd() + "\n"
+
+def _process_type_line(line: str) -> str:
+    """Helper to process a single line for type command."""
+    line = line.strip()
+    if not line:
+        return ""
+    if is_builtin(line):
+        return f"{line} is a shell builtin\n"
+    path = get_executable_path(line)
+    if path:
+        return f"{line} is {path}\n"
+    return f"{line}: not found\n"
 
 def _handle_type(arguments: list[str], stdin=None) -> str | None:
     output_lines = []
 
     # Arguments take precedence over stdin (like real shells)
     if arguments:
-        # Use arguments (original behavior)
         for arg in arguments:
-            if is_builtin(arg):
-                output_lines.append(f"{arg} is a shell builtin\n")
-            else:
-                path = get_executable_path(arg)
-                if path:
-                    output_lines.append(f"{arg} is {path}\n")
-                else:
-                    output_lines.append(f"{arg}: not found\n")
+            output_lines.append(_process_type_line(arg))
     elif stdin:
         # Read from stdin only if no arguments
         try:
+            # Try iterating line by line
             for line in stdin:
-                line = line.strip() if isinstance(line, str) else line.rstrip('\n\r')
-                if not line:
-                    continue
-                if is_builtin(line):
-                    output_lines.append(f"{line} is a shell builtin\n")
-                else:
-                    path = get_executable_path(line)
-                    if path:
-                        output_lines.append(f"{line} is {path}\n")
-                    else:
-                        output_lines.append(f"{line}: not found\n")
+                result = _process_type_line(line)
+                if result:
+                    output_lines.append(result)
         except (AttributeError, TypeError):
-            # stdin might not be iterable, try reading all at once
+            # Fallback: read all at once
             content = stdin.read() if hasattr(stdin, 'read') else str(stdin)
             for line in content.splitlines():
-                line = line.strip()
-                if not line:
-                    continue
-                if is_builtin(line):
-                    output_lines.append(f"{line} is a shell builtin\n")
-                else:
-                    path = get_executable_path(line)
-                    if path:
-                        output_lines.append(f"{line} is {path}\n")
-                    else:
-                        output_lines.append(f"{line}: not found\n")
+                result = _process_type_line(line)
+                if result:
+                    output_lines.append(result)
 
     return "".join(output_lines) if output_lines else None
 

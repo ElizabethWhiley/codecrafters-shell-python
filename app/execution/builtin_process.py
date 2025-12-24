@@ -1,6 +1,5 @@
 import os
 import io
-from typing import IO
 
 class BuiltinProcess:
     """Wrapper to mimic subprocess.Popen interface for builtin commands."""

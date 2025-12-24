@@ -49,27 +49,24 @@ class Command:
     def execute_with_pipe(self, stdin=None, stdout=None, stderr=None):
         if is_builtin(self.command):
             # Handle builtin commands
-            # Read from stdin if provided (from previous process)
-            stdin_input = None
-            if stdin:
-                if hasattr(stdin, 'read'):
-                    stdin_input = stdin
-                else:
-                    stdin_input = io.StringIO(str(stdin))
+            stdin_input = stdin if stdin and hasattr(stdin, 'read') else None
 
             # Call handler with stdin
             output = builtin_handlers[self.command](self.arguments, stdin=stdin_input)
             output = output or ""
 
-            # If stdout is PIPE, we need to create a pipe for next command
-            needs_pipe = (stdout == subprocess.PIPE)
-
-            if stdout and stdout != subprocess.PIPE:
-                # Write directly to provided stdout (terminal or file)
+            # If stdout is None (last command), print to terminal
+            if stdout is None:
+                print(output, end="", flush=True)
+                return BuiltinProcess(output, needs_pipe=False)
+            # If stdout is PIPE, create pipe for next command
+            elif stdout == subprocess.PIPE:
+                return BuiltinProcess(output, needs_pipe=True)
+            # Otherwise, write to provided stdout
+            else:
                 stdout.write(output)
                 stdout.flush()
-
-            return BuiltinProcess(output, needs_pipe=needs_pipe)
+                return BuiltinProcess(output, needs_pipe=False)
         else:
             # External command - use subprocess.Popen
             if not self.executable_path:
