@@ -5,6 +5,9 @@ from ..utils.completion import get_all_completions, get_completion_result
 from .history import History
 from ..models.shell_context import ShellContext
 
+# Constants
+SHELL_PROMPT = "$ "
+
 class Repl:
     """Read-Eval-Print Loop for the shell."""
     def __init__(self, command_parser: ShellLineParser):
@@ -22,7 +25,7 @@ class Repl:
 
     def run(self) -> None:
         while True:
-            line = input("$ ")
+            line = input(SHELL_PROMPT)
             result = self.command_parser.parse_line(line) if line else None
             if result:
                 result.execute(context=self.context)
@@ -57,7 +60,7 @@ class Repl:
     def _print_prompt(self) -> None:
         """Print the prompt and current input line."""
         line_buffer = readline.get_line_buffer()
-        sys.stdout.write(f"$ {line_buffer}\n")
+        sys.stdout.write(f"{SHELL_PROMPT}{line_buffer}\n")
         sys.stdout.flush()
 
     def _handle_first_tab(self, text: str) -> str | None:

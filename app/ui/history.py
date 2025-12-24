@@ -1,11 +1,15 @@
 import os
 import readline
 
+# Constants
+DEFAULT_HISTORY_LENGTH = 100
+DEFAULT_HISTORY_COUNT = 10
+
 class History:
     """Manages command history, using readline's native history."""
 
     def __init__(self):
-        readline.set_history_length(100)
+        readline.set_history_length(DEFAULT_HISTORY_LENGTH)
         self._last_written_count = 0
         self._histfile = None
 
@@ -51,7 +55,7 @@ class History:
 
     def format_default(self) -> str:
         """Format last 10 history items with line numbers."""
-        return self.format_last_n(10)
+        return self.format_last_n(DEFAULT_HISTORY_COUNT)
 
     def read_from_file(self, file_path: str) -> None:
         """Read history from a file and append to current history."""
