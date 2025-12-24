@@ -5,7 +5,7 @@ class BuiltinProcess:
     """Wrapper to mimic subprocess.Popen interface for builtin commands."""
 
     def __init__(self, output: str, needs_pipe: bool = False):
-        self.output = output
+        self._output = output
         self.returncode = 0
 
         if needs_pipe:

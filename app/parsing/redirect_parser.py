@@ -2,7 +2,7 @@ from ..models.redirect import Redirect, RedirectionType, RedirectMode
 
 class RedirectParser:
     def __init__(self):
-        self.redirect_map = {
+        self._redirect_map = {
             ">": (RedirectionType.STDOUT, RedirectMode.WRITE),
             "1>": (RedirectionType.STDOUT, RedirectMode.WRITE),
             "2>": (RedirectionType.STDERR, RedirectMode.WRITE),
@@ -25,5 +25,5 @@ class RedirectParser:
         return Redirect(RedirectionType.AUTO, RedirectMode.WRITE, None), arguments
 
     def _parse_redirect_type(self, argument: str) -> tuple[RedirectionType, RedirectMode]:
-        return self.redirect_map.get(argument, (RedirectionType.AUTO, RedirectMode.WRITE))
+        return self._redirect_map.get(argument, (RedirectionType.AUTO, RedirectMode.WRITE))
 

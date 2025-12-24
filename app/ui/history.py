@@ -7,15 +7,19 @@ class History:
     def __init__(self):
         readline.set_history_length(100)
         self._last_written_count = 0
-        self.histfile = None
+        self._histfile = None
 
         histfile = os.environ.get("HISTFILE")
         if histfile:
             if not os.path.exists(histfile):
                 raise FileNotFoundError(f"HISTFILE={histfile}: No such file or directory")
-            self.histfile = histfile
+            self._histfile = histfile
             self.read_from_file(histfile)
             self._last_written_count = self.get_count()
+
+    def get_histfile(self) -> str | None:
+        """Get the history file path if set via HISTFILE env var."""
+        return self._histfile
 
     def add(self, command: str) -> None:
         readline.add_history(command)

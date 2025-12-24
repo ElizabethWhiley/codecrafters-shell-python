@@ -8,10 +8,10 @@ from ..models.shell_context import ShellContext
 class Repl():
     def __init__(self, command_parser: ShellLineParser):
       self.command_parser = command_parser
-      self.matches = []
+      self._matches = []
       self._setup_completion()
-      self.last_prefix = ""
-      self.tab_count = 0
+      self._last_prefix = ""
+      self._tab_count = 0
       self.history = History()
       self.context = ShellContext(self.history)
 
@@ -31,18 +31,18 @@ class Repl():
       if state != 0:
           return None
 
-      self.matches = get_all_completions(text)
+      self._matches = get_all_completions(text)
       self._update_tab_count(text)
 
-      if self.tab_count == 1:
+      if self._tab_count == 1:
           return self._handle_first_tab(text)
-      elif self.tab_count == 2:
+      elif self._tab_count == 2:
           return self._handle_second_tab()
       return None
 
     def _update_tab_count(self, text: str) -> None:
-      self.tab_count = self.tab_count + 1 if self.last_prefix == text else 1
-      self.last_prefix = text
+      self._tab_count = self._tab_count + 1 if self._last_prefix == text else 1
+      self._last_prefix = text
 
     def _ring_bell(self) -> None:
       sys.stderr.write('\x07')
@@ -50,7 +50,7 @@ class Repl():
 
     def _print_matches(self) -> None:
       """Print all matches separated by two spaces."""
-      sorted_matches = sorted(self.matches)
+      sorted_matches = sorted(self._matches)
       sys.stdout.write("\n" + "  ".join(sorted_matches) + "\n")
       sys.stdout.flush()
 
@@ -62,12 +62,12 @@ class Repl():
 
     def _handle_first_tab(self, text: str) -> str | None:
       self._ring_bell()
-      return get_completion_result(self.matches, text)
+      return get_completion_result(self._matches, text)
 
     def _handle_second_tab(self) -> str | None:
       """Handle second TAB press: print all matches, clear matches, return None."""
       self._print_matches()
       self._print_prompt()
-      self.matches = []
+      self._matches = []
       return None
 

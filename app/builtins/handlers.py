@@ -26,8 +26,10 @@ def _handle_echo(arguments: list[str], stdin=None, context=None) -> str | None:
     return " ".join(arguments) + "\n"
 
 def _handle_exit(_arguments: list[str], _stdin=None, context=None) -> None:
-    if context and context.history and context.history.histfile:
-        context.history.write_to_file(context.history.histfile, mode="w")
+    if context and context.history:
+        histfile = context.history.get_histfile()
+        if histfile:
+            context.history.write_to_file(histfile, mode="w")
     sys.exit(0)
 
 def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | None:
