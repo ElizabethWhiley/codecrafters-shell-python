@@ -37,16 +37,31 @@ def _handle_history(arguments: list[str], _stdin=None) -> str | None:
         return None
 
     if arguments:
-        # get the number
-        n = int(arguments[0])
-        # current.history.get_last(n)
-        # add line numbers
-        output_lines = []
-        last_n = _current_history.get_last(n)
-        start_num = _current_history.get_count() - len(last_n) + 1
-        for i, cmd in enumerate(last_n, start=start_num):
-            output_lines.append(f"{i}  {cmd}\n")
-        return "".join(output_lines)
+        # check if it's a number or an "-r" flag
+
+        if arguments[0] == "-r":
+            # then checkif arguments[1] is the file path
+            if len(arguments) < 2:
+                return "history: -r requires a file path\n"
+            file_path = arguments[1]
+            # read the file line by line
+            with open(file_path, "r") as file:
+                for line in file:
+                    stripped = line.strip()
+                    if stripped:
+                        _current_history.add(stripped)
+            return None
+
+        if arguments[0].isdigit():
+            n = int(arguments[0])
+            # current.history.get_last(n)
+            # add line numbers
+            output_lines = []
+            last_n = _current_history.get_last(n)
+            start_num = _current_history.get_count() - len(last_n) + 1
+            for i, cmd in enumerate(last_n, start=start_num):
+                output_lines.append(f"{i}  {cmd}\n")
+            return "".join(output_lines)
     else:
         # current.history.get_last(10)
         output_lines = []

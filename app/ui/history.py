@@ -6,6 +6,9 @@ class History:
     def __init__(self):
         readline.set_history_length(100)
 
+    def add(self, command: str) -> None:
+        readline.add_history(command)
+
     def get_all(self) -> list[str]:
         length = readline.get_current_history_length()
         return [readline.get_history_item(i + 1) for i in range(length)]
