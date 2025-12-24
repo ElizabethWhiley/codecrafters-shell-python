@@ -1,4 +1,5 @@
 import os
+import sys
 from ..models.redirect import Redirect, RedirectionType
 
 
@@ -23,10 +24,14 @@ def handle_output(output: str | None, redirect: Redirect) -> None:
         _print_to_stdout(output)
 
 def _write_to_file(content: str, filepath: str, mode: str) -> None:
-    _ensure_directory_exists(filepath)
-    with open(filepath, mode, encoding="utf-8") as file:
-        file.write(content)
-        file.flush()
+    try:
+        _ensure_directory_exists(filepath)
+        with open(filepath, mode, encoding="utf-8") as file:
+            file.write(content)
+            file.flush()
+    except (PermissionError, OSError) as error:
+        sys.stderr.write(f"shell: cannot write to '{filepath}': {error}\n")
+        sys.stderr.flush()
 
 def _print_to_stdout(output: str | None) -> None:
     if output:

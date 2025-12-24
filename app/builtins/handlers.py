@@ -8,9 +8,9 @@ from ..models.shell_context import ShellContext
 # even if not all handlers use it. This allows for a uniform function signature
 # across all builtin commands.
 
-def _handle_cd(
+def _handle_cd(  # pylint: disable=unused-argument
     arguments: list[str],
-    _stdin: TextIO | None = None,
+    stdin: TextIO | None = None,
     context: ShellContext | None = None
 ) -> str | None:
     if len(arguments) == 0:
@@ -40,9 +40,9 @@ def _handle_echo(  # pylint: disable=unused-argument
         return stdin.read()
     return " ".join(arguments) + "\n"
 
-def _handle_exit(
+def _handle_exit(  # pylint: disable=unused-argument
     _arguments: list[str],
-    _stdin: TextIO | None = None,
+    stdin: TextIO | None = None,
     context: ShellContext | None = None
 ) -> None:
     if context and context.history:
@@ -51,9 +51,9 @@ def _handle_exit(
             context.history.write_to_file(histfile, mode="w")
     sys.exit(0)
 
-def _handle_history(
+def _handle_history(  # pylint: disable=unused-argument
     arguments: list[str],
-    _stdin: TextIO | None = None,
+    stdin: TextIO | None = None,
     context: ShellContext | None = None
 ) -> str | None:
     if context is None or context.history is None:
@@ -82,9 +82,9 @@ def _handle_history(
 
     return result
 
-def _handle_pwd(
+def _handle_pwd(  # pylint: disable=unused-argument
     _arguments: list[str],
-    _stdin: TextIO | None = None,
+    stdin: TextIO | None = None,
     context: ShellContext | None = None
 ) -> str | None:
     if context:

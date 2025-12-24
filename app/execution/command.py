@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from typing import TextIO
 from ..builtins.handlers import is_builtin, builtin_handlers
 from ..utils.path import get_executable_path
@@ -45,24 +46,28 @@ class Command:
         handle_output(output, self.redirect)
 
     def _execute_with_file_redirect(self) -> None:
-        _ensure_directory_exists(self.redirect.file)
-        with open(self.redirect.file, self.redirect.mode.value, encoding="utf-8") as file:
-            if self.redirect.type == RedirectionType.STDOUT:
-                subprocess.run(
-                    [self.command] + self.arguments,
-                    executable=self.executable_path,
-                    stdout=file,
-                    text=True,
-                    check=False
-                )
-            elif self.redirect.type == RedirectionType.STDERR:
-                subprocess.run(
-                    [self.command] + self.arguments,
-                    executable=self.executable_path,
-                    stderr=file,
-                    text=True,
-                    check=False
-                )
+        try:
+            _ensure_directory_exists(self.redirect.file)
+            with open(self.redirect.file, self.redirect.mode.value, encoding="utf-8") as file:
+                if self.redirect.type == RedirectionType.STDOUT:
+                    subprocess.run(
+                        [self.command] + self.arguments,
+                        executable=self.executable_path,
+                        stdout=file,
+                        text=True,
+                        check=False
+                    )
+                elif self.redirect.type == RedirectionType.STDERR:
+                    subprocess.run(
+                        [self.command] + self.arguments,
+                        executable=self.executable_path,
+                        stderr=file,
+                        text=True,
+                        check=False
+                    )
+        except (PermissionError, OSError) as error:
+            sys.stderr.write(f"shell: cannot redirect to '{self.redirect.file}': {error}\n")
+            sys.stderr.flush()
 
     def execute_with_pipe(
         self,

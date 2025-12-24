@@ -1,5 +1,6 @@
 import os
 import readline
+import sys
 
 # Constants
 DEFAULT_HISTORY_LENGTH = 100
@@ -59,11 +60,15 @@ class History:
 
     def read_from_file(self, file_path: str) -> None:
         """Read history from a file and append to current history."""
-        with open(file_path, "r", encoding="utf-8") as file:
-            for line in file:
-                stripped = line.strip()
-                if stripped:
-                    readline.add_history(stripped)
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                for line in file:
+                    stripped = line.strip()
+                    if stripped:
+                        readline.add_history(stripped)
+        except (FileNotFoundError, PermissionError, OSError) as error:
+            sys.stderr.write(f"history: cannot read file '{file_path}': {error}\n")
+            sys.stderr.flush()
 
     def write_to_file(self, file_path: str, mode: str = "w") -> None:
         """Write current history to a file.
@@ -75,8 +80,11 @@ class History:
         length = readline.get_current_history_length()
         start = 1 if mode == "w" else self._last_written_count + 1
 
-        with open(file_path, mode, encoding="utf-8") as file:
-            for i in range(start, length + 1):
-                file.write(readline.get_history_item(i) + "\n")
-
-        self._last_written_count = length
+        try:
+            with open(file_path, mode, encoding="utf-8") as file:
+                for i in range(start, length + 1):
+                    file.write(readline.get_history_item(i) + "\n")
+            self._last_written_count = length
+        except (PermissionError, OSError) as error:
+            sys.stderr.write(f"history: cannot write file '{file_path}': {error}\n")
+            sys.stderr.flush()
