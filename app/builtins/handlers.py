@@ -7,6 +7,10 @@ from ..models.shell_context import ShellContext
 # Note: All builtin handlers accept a 'context' parameter for consistency,
 # even if not all handlers use it. This allows for a uniform function signature
 # across all builtin commands.
+#
+# Return type convention (str | None):
+# - None: Success with no output to display
+# - str: Output to display (normal output or error message)
 
 def _handle_cd(  # pylint: disable=unused-argument
     arguments: list[str],
