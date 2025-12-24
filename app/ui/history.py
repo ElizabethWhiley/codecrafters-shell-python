@@ -1,27 +1,20 @@
 import readline
 
 class History:
-    """Manages command history, integrating with readline for arrow key navigation."""
+    """Manages command history, using readline's native history."""
 
     def __init__(self):
-        self.max_history_size = 100
-        self.history = []
-
-    def add(self, command: str) -> None:
-        if command == "":
-            return
-        self.history.append(command)
-        if len(self.history) > self.max_history_size:
-            self.history.pop(0)
-        readline.add_history(command)
+        readline.set_history_length(100)
 
     def get_all(self) -> list[str]:
-        return self.history
+        length = readline.get_current_history_length()
+        return [readline.get_history_item(i + 1) for i in range(length)]
 
     def get_last(self, n: int) -> list[str]:
-        return self.history[-n:]
+        length = readline.get_current_history_length()
+        start = max(1, length - n + 1)
+        return [readline.get_history_item(i) for i in range(start, length + 1)]
 
     def get_count(self) -> int:
-        """Get the total number of history entries."""
-        return len(self.history)
+        return readline.get_current_history_length()
 

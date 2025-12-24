@@ -18,15 +18,13 @@ class Repl():
     def _setup_completion(self) -> None:
         readline.set_completer(self._get_completions)
         readline.parse_and_bind("tab: complete")
+        readline.set_auto_history(True)
 
     def run(self) -> None:
         while True:
-            print(f"$ ", end="", flush=True)
-            line = input()
+            line = input("$ ")
             result = self.command_parser.parse_line(line) if line else None
             if result:
-                if line:
-                    self.history.add(line)
                 result.execute()
 
     def _get_completions(self, text: str, state: int) -> str | None:
