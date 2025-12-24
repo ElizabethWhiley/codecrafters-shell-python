@@ -10,34 +10,23 @@ class Pipeline:
     def execute(self, context: ShellContext | None = None) -> None:
         processes = []
         previous_process = None
+
         for i, command in enumerate(self.commands):
-            if i == 0:
-                process = command.execute_with_pipe(
-                    stdin=None,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    context=context
-                )
-                processes.append(process)
-                previous_process = process
-            elif i == len(self.commands) - 1:
-                process = command.execute_with_pipe(
-                    stdin=previous_process.stdout,
-                    stdout=None,
-                    stderr=None,
-                    context=context
-                )
-                processes.append(process)
-                previous_process = process
-            else:
-                process = command.execute_with_pipe(
-                    stdin=previous_process.stdout,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    context=context
-                )
-                processes.append(process)
-                previous_process = process
+          is_first = (i == 0)
+          is_last = (i == len(self.commands) - 1)
+
+          stdin = None if is_first else previous_process.stdout
+          stdout = None if is_last else subprocess.PIPE
+          stderr = None if is_last else subprocess.PIPE
+
+          process = command.execute_with_pipe(
+              stdin=stdin,
+              stdout=stdout,
+              stderr=stderr,
+              context=context
+          )
+          processes.append(process)
+          previous_process = process
 
         for process in processes:
             process.wait()
