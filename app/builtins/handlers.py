@@ -26,21 +26,9 @@ def _handle_echo(arguments: list[str], stdin=None, context=None) -> str | None:
     return " ".join(arguments) + "\n"
 
 def _handle_exit(_arguments: list[str], _stdin=None, context=None) -> None:
+    if context and context.history and context.history.histfile:
+        context.history.write_to_file(context.history.histfile, mode="w")
     sys.exit(0)
-
-def _handle_history_flag(flag: str, arguments: list[str], context) -> str | None:
-    """Handle history flags that require a file path."""
-    if len(arguments) < 2:
-        return f"history: {flag} requires a file path\n"
-
-    file_path = arguments[1]
-    if flag == "-r":
-        context.history.read_from_file(file_path)
-    elif flag == "-w":
-        context.history.write_to_file(file_path, mode="w")
-    elif flag == "-a":
-        context.history.write_to_file(file_path, mode="a")
-    return None
 
 def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | None:
     if context is None or context.history is None:
@@ -51,7 +39,17 @@ def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | No
 
     flag_or_num = arguments[0]
     if flag_or_num in ["-r", "-w", "-a"]:
-        return _handle_history_flag(flag_or_num, arguments, context)
+        if len(arguments) < 2:
+            return f"history: {flag_or_num} requires a file path\n"
+
+        file_path = arguments[1]
+        if flag_or_num == "-r":
+            context.history.read_from_file(file_path)
+        elif flag_or_num == "-w":
+            context.history.write_to_file(file_path, mode="w")
+        elif flag_or_num == "-a":
+            context.history.write_to_file(file_path, mode="a")
+        return None
 
     if flag_or_num.isdigit():
         n = int(flag_or_num)
