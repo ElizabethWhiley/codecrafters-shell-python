@@ -7,12 +7,12 @@ from ..models.shell_context import ShellContext
 
 class Repl():
     def __init__(self, command_parser: ShellLineParser):
-      self.command_parser = command_parser
-      self._matches = []
-      self._setup_completion()
-      self._last_prefix = ""
-      self._tab_count = 0
-      self.context = ShellContext(History())
+        self.command_parser = command_parser
+        self._matches = []
+        self._setup_completion()
+        self._last_prefix = ""
+        self._tab_count = 0
+        self.context = ShellContext(History())
 
     def _setup_completion(self) -> None:
         readline.set_completer(self._get_completions)
@@ -27,46 +27,46 @@ class Repl():
                 result.execute(context=self.context)
 
     def _get_completions(self, text: str, state: int) -> str | None:
-      if state != 0:
-          return None
+        if state != 0:
+            return None
 
-      self._matches = get_all_completions(text)
-      self._update_tab_count(text)
+        self._matches = get_all_completions(text)
+        self._update_tab_count(text)
 
-      if self._tab_count == 1:
-          return self._handle_first_tab(text)
-      elif self._tab_count == 2:
-          return self._handle_second_tab()
-      return None
+        if self._tab_count == 1:
+            return self._handle_first_tab(text)
+        elif self._tab_count == 2:
+            return self._handle_second_tab()
+        return None
 
     def _update_tab_count(self, text: str) -> None:
-      self._tab_count = self._tab_count + 1 if self._last_prefix == text else 1
-      self._last_prefix = text
+        self._tab_count = self._tab_count + 1 if self._last_prefix == text else 1
+        self._last_prefix = text
 
     def _ring_bell(self) -> None:
-      sys.stderr.write('\x07')
-      sys.stderr.flush()
+        sys.stderr.write('\x07')
+        sys.stderr.flush()
 
     def _print_matches(self) -> None:
-      """Print all matches separated by two spaces."""
-      sorted_matches = sorted(self._matches)
-      sys.stdout.write("\n" + "  ".join(sorted_matches) + "\n")
-      sys.stdout.flush()
+        """Print all matches separated by two spaces."""
+        sorted_matches = sorted(self._matches)
+        sys.stdout.write("\n" + "  ".join(sorted_matches) + "\n")
+        sys.stdout.flush()
 
     def _print_prompt(self) -> None:
-      """Print the prompt and current input line."""
-      line_buffer = readline.get_line_buffer()
-      sys.stdout.write(f"$ {line_buffer}\n")
-      sys.stdout.flush()
+        """Print the prompt and current input line."""
+        line_buffer = readline.get_line_buffer()
+        sys.stdout.write(f"$ {line_buffer}\n")
+        sys.stdout.flush()
 
     def _handle_first_tab(self, text: str) -> str | None:
-      self._ring_bell()
-      return get_completion_result(self._matches, text)
+        self._ring_bell()
+        return get_completion_result(self._matches, text)
 
     def _handle_second_tab(self) -> str | None:
-      """Handle second TAB press: print all matches, clear matches, return None."""
-      self._print_matches()
-      self._print_prompt()
-      self._matches = []
-      return None
+        """Handle second TAB press: print all matches, clear matches, return None."""
+        self._print_matches()
+        self._print_prompt()
+        self._matches = []
+        return None
 
