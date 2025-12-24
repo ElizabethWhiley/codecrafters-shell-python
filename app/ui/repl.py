@@ -12,8 +12,7 @@ class Repl():
       self._setup_completion()
       self._last_prefix = ""
       self._tab_count = 0
-      self.history = History()
-      self.context = ShellContext(self.history)
+      self.context = ShellContext(History())
 
     def _setup_completion(self) -> None:
         readline.set_completer(self._get_completions)
