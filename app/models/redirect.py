@@ -3,10 +3,8 @@ from enum import Enum, auto
 
 class RedirectionType(Enum):
     """Types of output redirection."""
-    FILE = auto()
     STDOUT = auto()
     STDERR = auto()
-    APPEND = auto()
     AUTO = auto()
 
 class RedirectMode(Enum):
