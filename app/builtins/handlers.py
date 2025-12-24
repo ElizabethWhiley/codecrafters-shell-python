@@ -2,13 +2,7 @@ import os
 import sys
 from ..utils.path import get_executable_path
 
-_current_history = None
-
-def set_history(history):
-    global _current_history
-    _current_history = history
-
-def _handle_cd(arguments: list[str], _stdin=None) -> str | None:
+def _handle_cd(arguments: list[str], _stdin=None, context=None) -> str | None:
     if len(arguments) == 0:
         return "cd: missing argument\n"
 
@@ -22,53 +16,56 @@ def _handle_cd(arguments: list[str], _stdin=None) -> str | None:
         return f"cd: {arguments[0]}: No such file or directory\n"
 
     os.chdir(absolute_path)
+    if context:
+        context.working_dir = os.getcwd()
 
-def _handle_echo(arguments: list[str], stdin=None) -> str | None:
+def _handle_echo(arguments: list[str], stdin=None, context=None) -> str | None:
     if stdin and not arguments:
         # Read from stdin if no arguments
         return stdin.read()
     return " ".join(arguments) + "\n"
 
-def _handle_exit(_arguments: list[str], _stdin=None) -> None:
+def _handle_exit(_arguments: list[str], _stdin=None, context=None) -> None:
     sys.exit(0)
 
-def _handle_history(arguments: list[str], _stdin=None) -> str | None:
-    if _current_history is None:
+def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | None:
+    if context is None or context.history is None:
         return None
 
     if arguments:
-
         if arguments[0] == "-r":
             if len(arguments) < 2:
                 return "history: -r requires a file path\n"
             file_path = arguments[1]
-            _current_history.read_from_file(file_path)
+            context.history.read_from_file(file_path)
             return None
 
         if arguments[0] == "-w":
             if len(arguments) < 2:
                 return "history: -w requires a file path\n"
             file_path = arguments[1]
-            _current_history.write_to_file(file_path)
+            context.history.write_to_file(file_path)
             return None
 
         if arguments[0].isdigit():
             n = int(arguments[0])
             output_lines = []
-            last_n = _current_history.get_last(n)
-            start_num = _current_history.get_count() - len(last_n) + 1
+            last_n = context.history.get_last(n)
+            start_num = context.history.get_count() - len(last_n) + 1
             for i, cmd in enumerate(last_n, start=start_num):
                 output_lines.append(f"{i}  {cmd}\n")
             return "".join(output_lines)
     else:
         output_lines = []
-        last_10 = _current_history.get_last(10)
-        start_num = _current_history.get_count() - len(last_10) + 1
+        last_10 = context.history.get_last(10)
+        start_num = context.history.get_count() - len(last_10) + 1
         for i, cmd in enumerate(last_10, start=start_num):
             output_lines.append(f"{i}  {cmd}\n")
         return "".join(output_lines)
 
-def _handle_pwd(_arguments: list[str], _stdin=None) -> str | None:
+def _handle_pwd(_arguments: list[str], _stdin=None, context=None) -> str | None:
+    if context:
+        return context.working_dir + "\n"
     return os.getcwd() + "\n"
 
 def _process_type_line(line: str) -> str:
@@ -83,7 +80,7 @@ def _process_type_line(line: str) -> str:
         return f"{line} is {path}\n"
     return f"{line}: not found\n"
 
-def _handle_type(arguments: list[str], stdin=None) -> str | None:
+def _handle_type(arguments: list[str], stdin=None, context=None) -> str | None:
     output_lines = []
 
     # Arguments take precedence over stdin (like real shells)

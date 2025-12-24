@@ -3,7 +3,7 @@ import readline
 from ..parsing.shell_parser import ShellLineParser
 from ..utils.completion import get_all_completions, get_completion_result
 from .history import History
-from ..builtins.handlers import set_history
+from ..models.shell_context import ShellContext
 
 class Repl():
     def __init__(self, command_parser: ShellLineParser):
@@ -13,7 +13,7 @@ class Repl():
       self.last_prefix = ""
       self.tab_count = 0
       self.history = History()
-      set_history(self.history)
+      self.context = ShellContext(self.history)
 
     def _setup_completion(self) -> None:
         readline.set_completer(self._get_completions)
@@ -25,7 +25,7 @@ class Repl():
             line = input("$ ")
             result = self.command_parser.parse_line(line) if line else None
             if result:
-                result.execute()
+                result.execute(context=self.context)
 
     def _get_completions(self, text: str, state: int) -> str | None:
       if state != 0:

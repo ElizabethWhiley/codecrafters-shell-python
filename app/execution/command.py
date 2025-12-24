@@ -15,17 +15,17 @@ class Command:
         self.redirect = redirects
         self.executable_path = get_executable_path(command)
 
-    def execute(self) -> None:
+    def execute(self, context=None) -> None:
         if self.command:
             if is_builtin(self.command):
-                self._execute_builtin()
+                self._execute_builtin(context=context)
             elif (self.executable_path):
                 self._execute_external()
             else:
                 self._execute_not_found()
 
-    def _execute_builtin(self) -> None:
-        output = builtin_handlers[self.command](self.arguments)
+    def _execute_builtin(self, context=None) -> None:
+        output = builtin_handlers[self.command](self.arguments, context=context)
         handle_output(output, self.redirect)
 
     def _execute_external(self) -> None:
@@ -46,13 +46,11 @@ class Command:
             elif self.redirect.type == RedirectionType.STDERR:
                 subprocess.run([self.command] + self.arguments, executable=self.executable_path, stderr=f, text=True)
 
-    def execute_with_pipe(self, stdin=None, stdout=None, stderr=None):
+    def execute_with_pipe(self, stdin=None, stdout=None, stderr=None, context=None):
         if is_builtin(self.command):
-            # Handle builtin commands
             stdin_input = stdin if stdin and hasattr(stdin, 'read') else None
 
-            # Call handler with stdin
-            output = builtin_handlers[self.command](self.arguments, stdin=stdin_input)
+            output = builtin_handlers[self.command](self.arguments, stdin=stdin_input, context=context)
             output = output or ""
 
             # If stdout is None (last command), print to terminal
