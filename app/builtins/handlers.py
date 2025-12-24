@@ -2,6 +2,12 @@ import os
 import sys
 from ..utils.path import get_executable_path
 
+_current_history = None
+
+def set_history(history):
+    global _current_history
+    _current_history = history
+
 def _handle_cd(arguments: list[str], _stdin=None) -> str | None:
     if len(arguments) == 0:
         return "cd: missing argument\n"
@@ -26,8 +32,15 @@ def _handle_echo(arguments: list[str], stdin=None) -> str | None:
 def _handle_exit(_arguments: list[str], _stdin=None) -> None:
     sys.exit(0)
 
-def _handle_history(_arguments: list[str], _stdin=None) -> None:
-    return
+def _handle_history(_arguments: list[str], _stdin=None) -> str | None:
+    if _current_history is None:
+        return None
+    last_10 = _current_history.get_last(10)
+    output_lines = []
+    start_num = _current_history.get_count() - len(last_10) + 1
+    for i, cmd in enumerate(last_10, start=start_num):
+        output_lines.append(f"{i}  {cmd}\n")
+    return "".join(output_lines)
 
 def _handle_pwd(_arguments: list[str], _stdin=None) -> str | None:
     return os.getcwd() + "\n"
