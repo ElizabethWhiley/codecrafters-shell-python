@@ -1,12 +1,18 @@
 import os
 import sys
+from typing import TextIO
 from ..utils.path import get_executable_path
+from ..models.shell_context import ShellContext
 
 # Note: All builtin handlers accept a 'context' parameter for consistency,
 # even if not all handlers use it. This allows for a uniform function signature
 # across all builtin commands.
 
-def _handle_cd(arguments: list[str], _stdin=None, context=None) -> str | None:
+def _handle_cd(
+    arguments: list[str],
+    _stdin: TextIO | None = None,
+    context: ShellContext | None = None
+) -> str | None:
     if len(arguments) == 0:
         return "cd: missing argument\n"
 
@@ -24,20 +30,32 @@ def _handle_cd(arguments: list[str], _stdin=None, context=None) -> str | None:
         context.working_dir = os.getcwd()
     return None
 
-def _handle_echo(arguments: list[str], stdin=None, context=None) -> str | None:  # pylint: disable=unused-argument
+def _handle_echo(  # pylint: disable=unused-argument
+    arguments: list[str],
+    stdin: TextIO | None = None,
+    context: ShellContext | None = None
+) -> str | None:
     if stdin and not arguments:
         # Read from stdin if no arguments
         return stdin.read()
     return " ".join(arguments) + "\n"
 
-def _handle_exit(_arguments: list[str], _stdin=None, context=None) -> None:
+def _handle_exit(
+    _arguments: list[str],
+    _stdin: TextIO | None = None,
+    context: ShellContext | None = None
+) -> None:
     if context and context.history:
         histfile = context.history.get_histfile()
         if histfile:
             context.history.write_to_file(histfile, mode="w")
     sys.exit(0)
 
-def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | None:
+def _handle_history(
+    arguments: list[str],
+    _stdin: TextIO | None = None,
+    context: ShellContext | None = None
+) -> str | None:
     if context is None or context.history is None:
         return None
 
@@ -64,7 +82,11 @@ def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | No
 
     return result
 
-def _handle_pwd(_arguments: list[str], _stdin=None, context=None) -> str | None:
+def _handle_pwd(
+    _arguments: list[str],
+    _stdin: TextIO | None = None,
+    context: ShellContext | None = None
+) -> str | None:
     if context:
         return context.working_dir + "\n"
     return os.getcwd() + "\n"
@@ -81,7 +103,7 @@ def _process_type_line(line: str) -> str:
         return f"{line} is {path}\n"
     return f"{line}: not found\n"
 
-def _read_type_from_stdin(stdin) -> list[str]:
+def _read_type_from_stdin(stdin: TextIO | str) -> list[str]:
     """Read and process type commands from stdin."""
     results = []
     try:
@@ -97,7 +119,11 @@ def _read_type_from_stdin(stdin) -> list[str]:
                 results.append(result)
     return results
 
-def _handle_type(arguments: list[str], stdin=None, context=None) -> str | None:  # pylint: disable=unused-argument
+def _handle_type(  # pylint: disable=unused-argument
+    arguments: list[str],
+    stdin: TextIO | None = None,
+    context: ShellContext | None = None
+) -> str | None:
     output_lines = []
 
     if arguments:

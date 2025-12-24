@@ -1,8 +1,10 @@
 import os
 import subprocess
+from typing import TextIO
 from ..builtins.handlers import is_builtin, builtin_handlers
 from ..utils.path import get_executable_path
 from ..models.redirect import Redirect, RedirectionType
+from ..models.shell_context import ShellContext
 from ..utils.output import handle_output
 from .builtin_process import BuiltinProcess
 
@@ -15,7 +17,7 @@ class Command:
         self.redirect = redirects
         self.executable_path = get_executable_path(command)
 
-    def execute(self, context=None) -> None:
+    def execute(self, context: ShellContext | None = None) -> None:
         if self.command:
             if is_builtin(self.command):
                 self._execute_builtin(context=context)
@@ -24,7 +26,7 @@ class Command:
             else:
                 self._execute_not_found()
 
-    def _execute_builtin(self, context=None) -> None:
+    def _execute_builtin(self, context: ShellContext | None = None) -> None:
         output = builtin_handlers[self.command](self.arguments, context=context)
         handle_output(output, self.redirect)
 
@@ -63,7 +65,13 @@ class Command:
                     check=False
                 )
 
-    def execute_with_pipe(self, stdin=None, stdout=None, stderr=None, context=None):
+    def execute_with_pipe(
+        self,
+        stdin: TextIO | None = None,
+        stdout: TextIO | int | None = None,
+        stderr: TextIO | int | None = None,
+        context: ShellContext | None = None
+    ) -> BuiltinProcess | subprocess.Popen:
         if is_builtin(self.command):
             stdin_input = stdin if stdin and hasattr(stdin, 'read') else None
 
