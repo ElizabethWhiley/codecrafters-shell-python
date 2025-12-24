@@ -44,7 +44,14 @@ def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | No
             if len(arguments) < 2:
                 return "history: -w requires a file path\n"
             file_path = arguments[1]
-            context.history.write_to_file(file_path)
+            context.history.write_to_file(file_path, mode="w")
+            return None
+
+        if arguments[0] == "-a":
+            if len(arguments) < 2:
+                return "history: -a requires a file path\n"
+            file_path = arguments[1]
+            context.history.write_to_file(file_path, mode="a")
             return None
 
         if arguments[0].isdigit():
@@ -80,28 +87,30 @@ def _process_type_line(line: str) -> str:
         return f"{line} is {path}\n"
     return f"{line}: not found\n"
 
+def _read_type_from_stdin(stdin) -> list[str]:
+    """Read and process type commands from stdin."""
+    results = []
+    try:
+        for line in stdin:
+            result = _process_type_line(line)
+            if result:
+                results.append(result)
+    except (AttributeError, TypeError):
+        content = stdin.read() if hasattr(stdin, 'read') else str(stdin)
+        for line in content.splitlines():
+            result = _process_type_line(line)
+            if result:
+                results.append(result)
+    return results
+
 def _handle_type(arguments: list[str], stdin=None, context=None) -> str | None:
     output_lines = []
 
-    # Arguments take precedence over stdin (like real shells)
     if arguments:
         for arg in arguments:
             output_lines.append(_process_type_line(arg))
     elif stdin:
-        # Read from stdin only if no arguments
-        try:
-            # Try iterating line by line
-            for line in stdin:
-                result = _process_type_line(line)
-                if result:
-                    output_lines.append(result)
-        except (AttributeError, TypeError):
-            # Fallback: read all at once
-            content = stdin.read() if hasattr(stdin, 'read') else str(stdin)
-            for line in content.splitlines():
-                result = _process_type_line(line)
-                if result:
-                    output_lines.append(result)
+        output_lines = _read_type_from_stdin(stdin)
 
     return "".join(output_lines) if output_lines else None
 

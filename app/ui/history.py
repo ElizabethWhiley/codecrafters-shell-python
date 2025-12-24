@@ -5,6 +5,7 @@ class History:
 
     def __init__(self):
         readline.set_history_length(100)
+        self._last_written_count = 0
 
     def add(self, command: str) -> None:
         readline.add_history(command)
@@ -29,10 +30,19 @@ class History:
                 if stripped:
                     readline.add_history(stripped)
 
-    def write_to_file(self, file_path: str) -> None:
-        """Write current history to a file."""
-        with open(file_path, "w") as file:
-            length = readline.get_current_history_length()
-            for i in range(1, length + 1):
+    def write_to_file(self, file_path: str, mode: str = "w") -> None:
+        """Write current history to a file.
+
+        Args:
+            file_path: Path to the history file
+            mode: File mode - "w" for write (overwrite), "a" for append (only new entries)
+        """
+        length = readline.get_current_history_length()
+        start = 1 if mode == "w" else self._last_written_count + 1
+
+        with open(file_path, mode) as file:
+            for i in range(start, length + 1):
                 file.write(readline.get_history_item(i) + "\n")
+
+        self._last_written_count = length
 
