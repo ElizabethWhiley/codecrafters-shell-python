@@ -21,3 +21,18 @@ class History:
     def get_count(self) -> int:
         return readline.get_current_history_length()
 
+    def read_from_file(self, file_path: str) -> None:
+        """Read history from a file and append to current history."""
+        with open(file_path, "r") as file:
+            for line in file:
+                stripped = line.strip()
+                if stripped:
+                    readline.add_history(stripped)
+
+    def write_to_file(self, file_path: str) -> None:
+        """Write current history to a file."""
+        with open(file_path, "w") as file:
+            length = readline.get_current_history_length()
+            for i in range(1, length + 1):
+                file.write(readline.get_history_item(i) + "\n")
+
