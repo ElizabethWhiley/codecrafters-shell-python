@@ -32,8 +32,20 @@ def _handle_pwd(arguments: list[str], stdin=None) -> str | None:
 def _handle_type(arguments: list[str], stdin=None) -> str | None:
     output_lines = []
 
-    if stdin:
-        # Read from stdin, process each line
+    # Arguments take precedence over stdin (like real shells)
+    if arguments:
+        # Use arguments (original behavior)
+        for arg in arguments:
+            if is_builtin(arg):
+                output_lines.append(f"{arg} is a shell builtin\n")
+            else:
+                path = get_executable_path(arg)
+                if path:
+                    output_lines.append(f"{arg} is {path}\n")
+                else:
+                    output_lines.append(f"{arg}: not found\n")
+    elif stdin:
+        # Read from stdin only if no arguments
         try:
             for line in stdin:
                 line = line.strip() if isinstance(line, str) else line.rstrip('\n\r')
@@ -62,17 +74,6 @@ def _handle_type(arguments: list[str], stdin=None) -> str | None:
                         output_lines.append(f"{line} is {path}\n")
                     else:
                         output_lines.append(f"{line}: not found\n")
-    else:
-        # Use arguments (original behavior)
-        for arg in arguments:
-            if is_builtin(arg):
-                output_lines.append(f"{arg} is a shell builtin\n")
-            else:
-                path = get_executable_path(arg)
-                if path:
-                    output_lines.append(f"{arg} is {path}\n")
-                else:
-                    output_lines.append(f"{arg}: not found\n")
 
     return "".join(output_lines) if output_lines else None
 
