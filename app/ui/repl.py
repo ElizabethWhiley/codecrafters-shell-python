@@ -35,7 +35,7 @@ class Repl():
 
         if self._tab_count == 1:
             return self._handle_first_tab(text)
-        elif self._tab_count == 2:
+        if self._tab_count == 2:
             return self._handle_second_tab()
         return None
 
@@ -68,5 +68,3 @@ class Repl():
         self._print_matches()
         self._print_prompt()
         self._matches = []
-        return None
-

@@ -2,6 +2,10 @@ import os
 import sys
 from ..utils.path import get_executable_path
 
+# Note: All builtin handlers accept a 'context' parameter for consistency,
+# even if not all handlers use it. This allows for a uniform function signature
+# across all builtin commands.
+
 def _handle_cd(arguments: list[str], _stdin=None, context=None) -> str | None:
     if len(arguments) == 0:
         return "cd: missing argument\n"
@@ -18,8 +22,9 @@ def _handle_cd(arguments: list[str], _stdin=None, context=None) -> str | None:
     os.chdir(absolute_path)
     if context:
         context.working_dir = os.getcwd()
+    return None
 
-def _handle_echo(arguments: list[str], stdin=None, context=None) -> str | None:
+def _handle_echo(arguments: list[str], stdin=None, context=None) -> str | None:  # pylint: disable=unused-argument
     if stdin and not arguments:
         # Read from stdin if no arguments
         return stdin.read()
@@ -54,8 +59,8 @@ def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | No
         return None
 
     if flag_or_num.isdigit():
-        n = int(flag_or_num)
-        return context.history.format_last_n(n)
+        count = int(flag_or_num)
+        return context.history.format_last_n(count)
 
     return None
 
@@ -92,7 +97,7 @@ def _read_type_from_stdin(stdin) -> list[str]:
                 results.append(result)
     return results
 
-def _handle_type(arguments: list[str], stdin=None, context=None) -> str | None:
+def _handle_type(arguments: list[str], stdin=None, context=None) -> str | None:  # pylint: disable=unused-argument
     output_lines = []
 
     if arguments:

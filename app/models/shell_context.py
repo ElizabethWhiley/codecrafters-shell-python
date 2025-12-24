@@ -8,4 +8,3 @@ class ShellContext:
         self.history = history
         self.working_dir = os.getcwd()
         self.env_vars = os.environ.copy()
-

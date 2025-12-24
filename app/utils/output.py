@@ -16,11 +16,10 @@ def handle_output(output: str | None, redirect: Redirect) -> None:
 
 def _write_to_file(content: str, filepath: str, mode: str) -> None:
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, mode) as f:
-        f.write(content)
-        f.flush()
+    with open(filepath, mode, encoding="utf-8") as file:
+        file.write(content)
+        file.flush()
 
 def _print_to_stdout(output: str | None) -> None:
     if output:
         print(output, end="", flush=True)
-

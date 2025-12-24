@@ -26,4 +26,3 @@ class RedirectParser:
 
     def _parse_redirect_type(self, argument: str) -> tuple[RedirectionType, RedirectMode]:
         return self._redirect_map.get(argument, (RedirectionType.AUTO, RedirectMode.WRITE))
-

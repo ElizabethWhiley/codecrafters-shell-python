@@ -10,8 +10,7 @@ class ShellLineParser:
     def parse_line(self, line: str) -> Command | Pipeline:
         if "|" in line:
             return self._parse_pipeline(line)
-        else:
-            return self._parse_command(line)
+        return self._parse_command(line)
 
     def _parse_pipeline(self, line: str) -> Pipeline:
         commands = line.split("|")
@@ -22,4 +21,3 @@ class ShellLineParser:
         command, *arguments = tokens
         redirect, cleaned_arguments = self.redirect_parser.parse_redirects(arguments)
         return Command(command, cleaned_arguments, redirect)
-

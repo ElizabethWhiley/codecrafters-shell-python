@@ -17,4 +17,3 @@ class Redirect:
     type: RedirectionType
     mode: RedirectMode
     file: str | None = None
-

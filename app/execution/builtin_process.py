@@ -12,8 +12,8 @@ class BuiltinProcess:
             # Create a real pipe for the next command to read from
             read_fd, write_fd = os.pipe()
             # Write output to the write end and close it
-            with os.fdopen(write_fd, 'w') as w:
-                w.write(output)
+            with os.fdopen(write_fd, 'w') as write_file:
+                write_file.write(output)
             # Return the read end as stdout
             self.stdout = os.fdopen(read_fd, 'r')
         else:
