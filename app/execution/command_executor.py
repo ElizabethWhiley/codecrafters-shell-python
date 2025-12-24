@@ -1,6 +1,6 @@
 import subprocess
 import sys
-from typing import TYPE_CHECKING
+from typing import TextIO, TYPE_CHECKING
 from ..builtins.handlers import is_builtin, builtin_handlers
 from ..models.redirect import RedirectionType
 from ..models.shell_context import ShellContext
@@ -30,17 +30,27 @@ class CommandExecutor:
         output = builtin_handlers[command.command](command.arguments, context=context)
         handle_output(output, command.redirect)
 
+    def _build_subprocess_kwargs(
+        self,
+        command: "Command",
+        stdout: TextIO | int | None = None,
+        stderr: TextIO | int | None = None
+    ) -> dict:
+        """Build common subprocess arguments for external commands."""
+        return {
+            "args": [command.command] + command.arguments,
+            "executable": command.executable_path,
+            "text": True,
+            "stdout": stdout,
+            "stderr": stderr,
+        }
+
     def _execute_external(self, command: "Command") -> None:
         """Execute an external command."""
         if command.redirect.type in (RedirectionType.STDOUT, RedirectionType.STDERR):
             self._execute_with_file_redirect(command)
         else:
-            subprocess.run(
-                [command.command] + command.arguments,
-                executable=command.executable_path,
-                text=True,
-                check=False
-            )
+            subprocess.run(**self._build_subprocess_kwargs(command), check=False)
 
     def _execute_not_found(self, command: "Command") -> None:
         """Handle command not found error."""
@@ -52,22 +62,12 @@ class CommandExecutor:
         try:
             _ensure_directory_exists(command.redirect.file)
             with open(command.redirect.file, command.redirect.mode.value, encoding="utf-8") as file:
+                kwargs = self._build_subprocess_kwargs(command)
                 if command.redirect.type == RedirectionType.STDOUT:
-                    subprocess.run(
-                        [command.command] + command.arguments,
-                        executable=command.executable_path,
-                        stdout=file,
-                        text=True,
-                        check=False
-                    )
+                    kwargs["stdout"] = file
                 elif command.redirect.type == RedirectionType.STDERR:
-                    subprocess.run(
-                        [command.command] + command.arguments,
-                        executable=command.executable_path,
-                        stderr=file,
-                        text=True,
-                        check=False
-                    )
+                    kwargs["stderr"] = file
+                subprocess.run(**kwargs, check=False)
         except (PermissionError, OSError) as error:
             sys.stderr.write(f"shell: cannot redirect to '{command.redirect.file}': {error}\n")
             sys.stderr.flush()
