@@ -2,6 +2,7 @@ import subprocess
 from typing import TextIO, TYPE_CHECKING
 from ..builtins.handlers import is_builtin, builtin_handlers
 from ..models.shell_context import ShellContext
+from ..utils.subprocess_utils import build_subprocess_kwargs
 from .builtin_process import BuiltinProcess
 
 if TYPE_CHECKING:
@@ -65,10 +66,5 @@ class PipeExecutor:
         if not command.executable_path:
             raise FileNotFoundError(f"{command.command}: not found")
         return subprocess.Popen(
-            [command.command] + command.arguments,
-            executable=command.executable_path,
-            stdin=stdin,
-            stdout=stdout,
-            stderr=stderr,
-            text=True
+            **build_subprocess_kwargs(command, stdin=stdin, stdout=stdout, stderr=stderr)
         )
