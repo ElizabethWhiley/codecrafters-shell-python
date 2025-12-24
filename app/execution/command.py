@@ -8,6 +8,7 @@ from .builtin_process import BuiltinProcess
 
 
 class Command:
+    """Represents a shell command with arguments and redirection."""
     def __init__(self, command: str, arguments: list[str], redirects: Redirect):
         self.command = command
         self.arguments = arguments

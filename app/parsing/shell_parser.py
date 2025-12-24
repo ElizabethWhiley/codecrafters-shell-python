@@ -4,6 +4,7 @@ from ..execution.pipeline import Pipeline
 from ..parsing.redirect_parser import RedirectParser
 
 class ShellLineParser:
+    """Parses shell command lines into Command or Pipeline objects."""
     def __init__(self, redirect_parser: RedirectParser):
         self.redirect_parser = redirect_parser
 

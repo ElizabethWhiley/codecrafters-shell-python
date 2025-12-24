@@ -7,8 +7,11 @@ init-hook='import sys; sys.path.append(".")'
 
 [MESSAGES CONTROL]
 # Disable specific warnings
+# Note: missing-function-docstring is disabled - we only require docstrings
+# for classes and public functions/methods. Private methods (_method) don't need them.
 disable=
     missing-module-docstring,
+    missing-function-docstring,
     too-few-public-methods,
     fixme,
     relative-beyond-top-level

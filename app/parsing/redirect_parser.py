@@ -1,6 +1,7 @@
 from ..models.redirect import Redirect, RedirectionType, RedirectMode
 
 class RedirectParser:
+    """Parses redirection operators from command arguments."""
     def __init__(self):
         self._redirect_map = {
             ">": (RedirectionType.STDOUT, RedirectMode.WRITE),

@@ -2,6 +2,7 @@ import subprocess
 from .command import Command
 
 class Pipeline:
+    """Executes a sequence of commands connected by pipes."""
     def __init__(self, commands: list[Command]):
         self.commands = commands
 

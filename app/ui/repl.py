@@ -5,7 +5,8 @@ from ..utils.completion import get_all_completions, get_completion_result
 from .history import History
 from ..models.shell_context import ShellContext
 
-class Repl():
+class Repl:
+    """Read-Eval-Print Loop for the shell."""
     def __init__(self, command_parser: ShellLineParser):
         self.command_parser = command_parser
         self._matches = []

@@ -45,6 +45,8 @@ def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | No
         return context.history.format_default()
 
     flag_or_num = arguments[0]
+    result = None
+
     if flag_or_num in ["-r", "-w", "-a"]:
         if len(arguments) < 2:
             return f"history: {flag_or_num} requires a file path\n"
@@ -56,13 +58,11 @@ def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | No
             context.history.write_to_file(file_path, mode="w")
         elif flag_or_num == "-a":
             context.history.write_to_file(file_path, mode="a")
-        return None
-
-    if flag_or_num.isdigit():
+    elif flag_or_num.isdigit():
         count = int(flag_or_num)
-        return context.history.format_last_n(count)
+        result = context.history.format_last_n(count)
 
-    return None
+    return result
 
 def _handle_pwd(_arguments: list[str], _stdin=None, context=None) -> str | None:
     if context:
