@@ -28,47 +28,36 @@ def _handle_echo(arguments: list[str], stdin=None, context=None) -> str | None:
 def _handle_exit(_arguments: list[str], _stdin=None, context=None) -> None:
     sys.exit(0)
 
+def _handle_history_flag(flag: str, arguments: list[str], context) -> str | None:
+    """Handle history flags that require a file path."""
+    if len(arguments) < 2:
+        return f"history: {flag} requires a file path\n"
+
+    file_path = arguments[1]
+    if flag == "-r":
+        context.history.read_from_file(file_path)
+    elif flag == "-w":
+        context.history.write_to_file(file_path, mode="w")
+    elif flag == "-a":
+        context.history.write_to_file(file_path, mode="a")
+    return None
+
 def _handle_history(arguments: list[str], _stdin=None, context=None) -> str | None:
     if context is None or context.history is None:
         return None
 
-    if arguments:
-        if arguments[0] == "-r":
-            if len(arguments) < 2:
-                return "history: -r requires a file path\n"
-            file_path = arguments[1]
-            context.history.read_from_file(file_path)
-            return None
+    if not arguments:
+        return context.history.format_default()
 
-        if arguments[0] == "-w":
-            if len(arguments) < 2:
-                return "history: -w requires a file path\n"
-            file_path = arguments[1]
-            context.history.write_to_file(file_path, mode="w")
-            return None
+    flag_or_num = arguments[0]
+    if flag_or_num in ["-r", "-w", "-a"]:
+        return _handle_history_flag(flag_or_num, arguments, context)
 
-        if arguments[0] == "-a":
-            if len(arguments) < 2:
-                return "history: -a requires a file path\n"
-            file_path = arguments[1]
-            context.history.write_to_file(file_path, mode="a")
-            return None
+    if flag_or_num.isdigit():
+        n = int(flag_or_num)
+        return context.history.format_last_n(n)
 
-        if arguments[0].isdigit():
-            n = int(arguments[0])
-            output_lines = []
-            last_n = context.history.get_last(n)
-            start_num = context.history.get_count() - len(last_n) + 1
-            for i, cmd in enumerate(last_n, start=start_num):
-                output_lines.append(f"{i}  {cmd}\n")
-            return "".join(output_lines)
-    else:
-        output_lines = []
-        last_10 = context.history.get_last(10)
-        start_num = context.history.get_count() - len(last_10) + 1
-        for i, cmd in enumerate(last_10, start=start_num):
-            output_lines.append(f"{i}  {cmd}\n")
-        return "".join(output_lines)
+    return None
 
 def _handle_pwd(_arguments: list[str], _stdin=None, context=None) -> str | None:
     if context:

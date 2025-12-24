@@ -22,6 +22,23 @@ class History:
     def get_count(self) -> int:
         return readline.get_current_history_length()
 
+    def format_with_line_numbers(self, items: list[str], start_num: int) -> str:
+        """Format history items with line numbers."""
+        output_lines = []
+        for i, cmd in enumerate(items, start=start_num):
+            output_lines.append(f"{i}  {cmd}\n")
+        return "".join(output_lines)
+
+    def format_last_n(self, n: int) -> str:
+        """Get last n history items and format them with line numbers."""
+        last_n = self.get_last(n)
+        start_num = self.get_count() - len(last_n) + 1
+        return self.format_with_line_numbers(last_n, start_num)
+
+    def format_default(self) -> str:
+        """Format last 10 history items with line numbers."""
+        return self.format_last_n(10)
+
     def read_from_file(self, file_path: str) -> None:
         """Read history from a file and append to current history."""
         with open(file_path, "r") as file:
