@@ -26,6 +26,9 @@ def _handle_echo(arguments: list[str], stdin=None) -> str | None:
 def _handle_exit(_arguments: list[str], _stdin=None) -> None:
     sys.exit(0)
 
+def _handle_history(_arguments: list[str], _stdin=None) -> None:
+    return
+
 def _handle_pwd(_arguments: list[str], _stdin=None) -> str | None:
     return os.getcwd() + "\n"
 
@@ -70,6 +73,7 @@ builtin_handlers = {
     "cd": _handle_cd,
     "echo": _handle_echo,
     "exit": _handle_exit,
+    "history": _handle_history,
     "pwd": _handle_pwd,
     "type": _handle_type,
 }
