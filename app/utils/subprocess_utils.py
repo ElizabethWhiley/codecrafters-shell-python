@@ -19,4 +19,3 @@ def build_subprocess_kwargs(
         "stdout": stdout,
         "stderr": stderr,
     }
-
