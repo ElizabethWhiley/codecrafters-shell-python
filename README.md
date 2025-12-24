@@ -7,8 +7,8 @@ A POSIX-compliant shell implementation that interprets shell commands, runs exte
 and handles builtin commands like `cd`, `pwd`, `echo`, `history`, and more. Features include
 command parsing, pipelines, redirection, command history, and tab completion.
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+**Note**: If you're viewing this repo on GitHub, and want to try this challenge out yourself,
+head over to [codecrafters.io](https://codecrafters.io) to try the challenge.
 
 ## Quick Start
 
