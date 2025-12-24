@@ -77,7 +77,7 @@ class Command:
         context: ShellContext | None = None
     ) -> BuiltinProcess | subprocess.Popen:
         if is_builtin(self.command):
-            stdin_input = stdin if stdin and hasattr(stdin, 'read') else None
+            stdin_input = stdin if stdin and hasattr(stdin, "read") else None
 
             output = builtin_handlers[self.command](
                 self.arguments,

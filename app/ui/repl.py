@@ -48,7 +48,7 @@ class Repl:
         self._last_prefix = text
 
     def _ring_bell(self) -> None:
-        sys.stderr.write('\x07')
+        sys.stderr.write("\x07")
         sys.stderr.flush()
 
     def _print_matches(self) -> None:

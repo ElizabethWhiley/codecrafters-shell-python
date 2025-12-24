@@ -116,7 +116,7 @@ def _read_type_from_stdin(stdin: TextIO | str) -> list[str]:
             if result:
                 results.append(result)
     except (AttributeError, TypeError):
-        content = stdin.read() if hasattr(stdin, 'read') else str(stdin)
+        content = stdin.read() if hasattr(stdin, "read") else str(stdin)
         for line in content.splitlines():
             result = _process_type_line(line)
             if result:
